@@ -1,3 +1,9 @@
+import {
+  darkSects,
+  darkArts,
+  ensureDarkness,
+  erosionEffects,
+} from "./darkness.js";
 export const sects = {
   huashan: {
     name: "화산파",
@@ -61,6 +67,8 @@ export const sects = {
   },
 };
 
+Object.assign(sects, darkSects);
+
 export const sectArts = {
   huashanSword: {
     name: "화산입문검",
@@ -106,6 +114,8 @@ export const sectArts = {
   },
 };
 
+Object.assign(sectArts, darkArts);
+
 export const realms = [
   { name: "입문", inner: 0, mastery: 0 },
   { name: "삼류", inner: 15, mastery: 20 },
@@ -147,6 +157,7 @@ export function combatStats(j, fate, catalog) {
         )
         .map(([, a]) => a.xp),
     );
+  const erosion = erosionEffects(ensureDarkness(j).erosion);
   const body = best("body"),
     movement = best("move");
   return {
@@ -155,7 +166,8 @@ export function combatStats(j, fate, catalog) {
       Math.floor(fate.stats[0] / 2) +
       p.realm * 15 +
       (p.sect === "shaolin" ? 12 : 0) +
-      Math.floor(body / 5),
+      Math.floor(body / 5) -
+      erosion.hpPenalty,
     attack:
       9 +
       Math.floor(fate.stats[0] / 14) +
@@ -170,6 +182,8 @@ export function combatStats(j, fate, catalog) {
       Math.floor(body / 25) +
       Math.floor(movement / 40),
     maxQi: Math.max(0, j.inner),
+    darkSkill: !!catalog[j.trainingArt]?.dark,
+    backlash: erosion.backlash,
     skillKnown: category === "attack" && art?.status === "learned",
   };
 }
@@ -231,7 +245,8 @@ export function combatTurn(battle, action) {
   if (action === "attack") damage = b.attack;
   if (action === "skill") {
     b.qi -= 6;
-    damage = Math.floor(b.attack * 1.8);
+    damage = Math.floor(b.attack * (b.darkSkill ? 2.2 : 1.8));
+    if (b.darkSkill) b.hp = Math.max(1, b.hp - (b.backlash || 0));
   }
   if (action === "guard") {
     guard = 0.8;

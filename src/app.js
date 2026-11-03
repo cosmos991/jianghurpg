@@ -1,3 +1,9 @@
+import {
+  updateTemptation,
+  ensureDarkness,
+  darkPractice,
+  erosionEffects,
+} from "./game/darkness.js";
 import { mountProgression } from "./progression-ui.js";
 import { sectArts, sects, ensureProgress } from "./game/progression.js";
 import { loadSave, saveGame } from "./game/storage.js";
@@ -1014,8 +1020,10 @@ function worldAction(kind) {
       (e.id === "blade" && c.category === "attack" ? 1 : 0) +
       (f.trait === "천무지체" ? 2 : 0);
     j.energy -= cost;
+    const darkGain = darkPractice(j, id);
+    j.inner += darkGain;
     const gain = gainMartial(id, amount);
-    text = `${c.name}을 수련했습니다. ${c.category === "mind" ? "심법" : "숙련도"} +${gain} (${j.arts[id].xp}/100 · ${martialPhase(j.arts[id].xp)}), 기력 −${cost}.`;
+    text = `${c.name}을 수련했습니다. ${c.category === "mind" ? "심법" : "숙련도"} +${gain} (${j.arts[id].xp}/100 · ${martialPhase(j.arts[id].xp)}), 기력 −${cost}${c.dark ? " · 마공 침식 발생" : ""}.`;
   } else if (kind === "breathe") {
     const c = activeMind();
     if (!c) {
@@ -1041,10 +1049,11 @@ function worldAction(kind) {
       (e.id === "meridian" ? 3 : 0) +
       (j.activeMind === "qingxu" ? 2 : 0) +
       (f.trait === "명경지수" ? 1 : 0);
-    j.inner += gain;
+    const darkGain = darkPractice(j, j.activeMind);
+    j.inner += gain + darkGain;
     j.energy -= 10;
     const xp = gainMartial(j.activeMind, 3 + Math.floor(f.stats[1] / 25));
-    text = `${c.name}으로 운기조식했습니다. 심법 숙련도 +${xp}, 내공 +${gain}, 기력 −10.`;
+    text = `${c.name}으로 운기조식했습니다. 심법 숙련도 +${xp}, 내공량 +${gain + darkGain}, 기력 −10${c.dark ? " · 마공 침식 발생" : ""}.`;
   } else if (kind === "work") {
     if (j.energy < 16) {
       notify("기력이 부족합니다. 먼저 휴식하세요.");
@@ -1070,7 +1079,9 @@ function worldAction(kind) {
       text = "특별한 만남은 없었지만 산열매를 챙겼습니다. 식량 +1, 기력 −20.";
     }
   } else if (kind === "rest") {
-    const heal = e.id === "medicine" ? 45 : 35;
+    const heal =
+      (e.id === "medicine" ? 45 : 35) -
+      erosionEffects(ensureDarkness(j).erosion).restPenalty;
     j.energy = Math.min(100, j.energy + heal);
     text = `객잔 처마 아래에서 충분히 쉬었습니다. 기력 최대 ${heal} 회복.`;
   } else return;
@@ -1215,6 +1226,8 @@ function renderMartial() {
 }
 function renderWorld() {
   ensureProgress(state.journey);
+  ensureDarkness(state.journey);
+  if (updateTemptation(state.journey, state.chosen)) persist();
   const j = state.journey,
     f = state.chosen,
     o = startOrigins[f.origin],
