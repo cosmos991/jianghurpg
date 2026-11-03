@@ -1,3 +1,5 @@
+import { mountLongTraining } from "./long-training-ui.js";
+import { ensureCalendar, formatDate, dispatchDueEvent } from "./game/time.js";
 import {
   updateTemptation,
   ensureDarkness,
@@ -857,8 +859,7 @@ function activeMind(j = state.journey) {
 function finishWorldTurn(text) {
   const j = state.journey;
   ensureAlignment(j);
-  const day = Math.floor(j.turn / 2) + 1,
-    time = `제${day}일 ${j.turn % 2 ? "오후" : "오전"}`;
+  const time = formatDate(j.turn);
   j.turn++;
   addLog(text, time);
   if (j.turn % 2 === 0) {
@@ -867,16 +868,16 @@ function finishWorldTurn(text) {
       j.energy = Math.min(100, j.energy + 20);
       addLog(
         "밤사이 식량 1을 먹고 쉬었습니다. 기력 최대 20 회복.",
-        `제${day}일 밤`,
+        formatDate(j.turn - 1).replace("오후", "밤"),
       );
     } else
       addLog(
         "식량이 떨어져 밤에 충분히 회복하지 못했습니다. 시장에서 식량을 구하세요.",
-        `제${day}일 밤`,
+        formatDate(j.turn - 1).replace("오후", "밤"),
       );
   }
   syncMartial(j);
-  maybeRoadEvent();
+  if (!dispatchDueEvent(j, () => maybeRoadEvent(true))) maybeRoadEvent();
   if (j.turn === 14)
     addLog(
       "첫 일주일을 마쳤습니다. 익힌 무공과 인연을 바탕으로 이제 문파를 방문해 입문 시험을 치르거나 독행을 이어갈 수 있습니다.",
@@ -1225,6 +1226,7 @@ function renderMartial() {
   if (!j.academy.enrolled) $("#enroll-academy").onclick = enrollAcademy;
 }
 function renderWorld() {
+  ensureCalendar(state.journey);
   ensureProgress(state.journey);
   ensureDarkness(state.journey);
   if (updateTemptation(state.journey, state.chosen)) persist();
@@ -1236,7 +1238,7 @@ function renderWorld() {
     mind = activeMind();
   $("#world-title").textContent = o.place;
   $("#world-time").textContent =
-    `제${Math.floor(j.turn / 2) + 1}일 · ${j.turn % 2 ? "오후" : "오전"} · 작은 선택이 무인의 삶을 만듭니다`;
+    `${formatDate(j.turn)} · 제${Math.floor(j.turn / 2) + 1}일`;
   $("#world-portrait").style.backgroundPosition = portraitPosition(
     state.character,
   );
@@ -1288,6 +1290,7 @@ function renderWorld() {
     );
   });
   progression.render();
+  longTraining.render();
   $("#world-log-entries").innerHTML = j.log
     .map(
       (l) =>
@@ -1446,7 +1449,7 @@ function renderPlayerSituation() {
       progress: "비무·수련 이어가기",
     };
   $("#world-goal").innerHTML =
-    `<div class="situation-top"><span class="eyebrow">YOUR CURRENT STORY · 지금 나의 상황</span><span class="situation-time">${`제${view.day}일 ${view.period}${j.turn < 14 ? ` · 문파 방문까지 ${view.actionsLeft}회 행동` : " · 문파 입문과 독행"}`}</span></div><h2>${view.title}</h2><div class="situation-tags"><span>${sects[j.progress?.sect]?.name || (j.academy.enrolled ? "청계학관 재학 · 문파 무소속" : "문파 무소속")}</span><span>${escapeText(alignmentIdentity().label)}</span><span>${escapeText(origins[state.chosen.origin].name)}</span><span>${state.encounter.kind === "major" ? "큰 기연" : state.encounter.kind === "minor" ? "작은 인연" : "평범한 출발"}</span></div><p class="situation-opening">${escapeText(view.opening)}</p><p class="situation-story">${escapeText(view.background)} ${escapeText(view.growth)}</p><div class="situation-conditions">${view.resourceNotes.map((n) => `<div class="${n.kind}"><small>${n.label}</small><strong>${n.text}</strong></div>`).join("")}</div><div class="situation-next"><span>${view.completed ? "다음 여정" : "추천 행동 · " + labels[view.next]}</span><p>${view.reason}</p>${view.next ? '<button id="view-suggestion" class="text-button">행동 살펴보기 ↓</button>' : ""}</div><div class="week-progress" role="meter" aria-label="첫 일주일 진행" aria-valuemin="0" aria-valuemax="14" aria-valuenow="${Math.min(14, j.turn)}"><i style="width:${(Math.min(14, j.turn) / 14) * 100}%"></i></div>`;
+    `<div class="situation-top"><span class="eyebrow">YOUR CURRENT STORY · 지금 나의 상황</span><span class="situation-time">${`${formatDate(j.turn)}${j.turn < 14 ? ` · 문파 방문까지 ${view.actionsLeft}회 행동` : " · 문파 입문과 독행"}`}</span></div><h2>${view.title}</h2><div class="situation-tags"><span>${sects[j.progress?.sect]?.name || (j.academy.enrolled ? "청계학관 재학 · 문파 무소속" : "문파 무소속")}</span><span>${escapeText(alignmentIdentity().label)}</span><span>${escapeText(origins[state.chosen.origin].name)}</span><span>${state.encounter.kind === "major" ? "큰 기연" : state.encounter.kind === "minor" ? "작은 인연" : "평범한 출발"}</span></div><p class="situation-opening">${escapeText(view.opening)}</p><p class="situation-story">${escapeText(view.background)} ${escapeText(view.growth)}</p><div class="situation-conditions">${view.resourceNotes.map((n) => `<div class="${n.kind}"><small>${n.label}</small><strong>${n.text}</strong></div>`).join("")}</div><div class="situation-next"><span>${view.completed ? "다음 여정" : "추천 행동 · " + labels[view.next]}</span><p>${view.reason}</p>${view.next ? '<button id="view-suggestion" class="text-button">행동 살펴보기 ↓</button>' : ""}</div><div class="week-progress" role="meter" aria-label="첫 일주일 진행" aria-valuemin="0" aria-valuemax="14" aria-valuenow="${Math.min(14, j.turn)}"><i style="width:${(Math.min(14, j.turn) / 14) * 100}%"></i></div>`;
   if (view.next)
     $("#view-suggestion").onclick = () => {
       const button =
@@ -1506,12 +1509,12 @@ function alignmentIdentity() {
     desc: alignments[id].desc + " · 이후 선택으로 달라질 수 있습니다.",
   };
 }
-function maybeRoadEvent() {
+function maybeRoadEvent(force = false) {
   const j = state.journey;
   ensureAlignment(j);
-  if (j.pendingEvent || j.turn - j.lastRoadEventTurn < 2) return;
+  if (j.pendingEvent || (!force && j.turn - j.lastRoadEventTurn < 2)) return;
   const gap = j.turn - j.lastRoadEventTurn;
-  if (gap < 4 && random(100) >= 35) return;
+  if (!force && gap < 4 && random(100) >= 35) return;
   const unseen = roadEvents.filter((e) => !j.recentRoadEvents.includes(e.id)),
     fresh = roadEvents.filter(
       (e) => !j.recentRoadEvents.slice(-3).includes(e.id),
@@ -1584,7 +1587,7 @@ function renderAlignment() {
             .slice(0, 4)
             .map(
               (h) =>
-                `<article><span>제${Math.ceil(h.turn / 2)}일 · ${escapeText(h.event)}</span><p>${escapeText(h.choice)}</p><small>${escapeText(h.changes)}</small></article>`,
+                `<article><span>${formatDate(h.turn)} · ${escapeText(h.event)}</span><p>${escapeText(h.choice)}</p><small>${escapeText(h.changes)}</small></article>`,
             )
             .join("")}</details>`
         : '<div class="path-first">아직 기록된 선택이 없습니다. 돌발 사건에서 당신의 뜻을 보여주세요.</div>'
@@ -1615,6 +1618,20 @@ const progression = mountProgression({
   finishTurn: finishWorldTurn,
   gainMartial,
   renderWorld,
+});
+
+const longTraining = mountLongTraining({
+  state,
+  catalog: martialCatalog,
+  random,
+  locked: () => progression.locked(),
+  onEvent: () => maybeRoadEvent(true),
+  gainMartial,
+  persist,
+  renderWorld,
+  addLog,
+  syncMartial,
+  notify,
 });
 
 if (

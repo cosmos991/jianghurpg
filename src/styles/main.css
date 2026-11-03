@@ -4299,3 +4299,186 @@ body {
     font-size: 18px;
   }
 }
+
+/* Calendar and interrupted long-term cultivation */
+.long-training-panel {
+  padding: 24px;
+  border: 1px solid #646947;
+  background: linear-gradient(130deg, #253729, #17231c);
+  margin-bottom: 20px;
+}
+.long-training-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+.long-training-heading h2 {
+  font: 500 23px "Noto Serif KR";
+  margin: 10px 0;
+}
+.long-training-heading > span {
+  font-size: 10px;
+  white-space: nowrap;
+  color: #c5bf98;
+}
+.long-training-intro,
+.long-training-preview p,
+.long-task p {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #a6b49a;
+}
+.long-training-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0 15px;
+}
+.long-training-form label {
+  font-size: 10px;
+  color: #b7c5a7;
+}
+.long-training-form select {
+  display: block;
+  width: 100%;
+  margin-top: 7px;
+  padding: 11px 12px;
+  background: #111e17;
+  color: #e0dfc9;
+  border: 1px solid #526345;
+  border-radius: 2px;
+  font: 13px "Noto Sans KR";
+}
+.long-training-form select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.long-training-preview {
+  background: #0c181366;
+  padding: 15px 17px;
+  margin-bottom: 17px;
+  border: 1px solid #3d5138;
+}
+.long-training-preview > span {
+  font-size: 12px;
+  color: #dbc993;
+}
+.long-training-preview p {
+  font-size: 10px;
+  margin: 8px 0 0;
+}
+.long-training-unavailable {
+  color: #bcab83;
+  font-size: 12px;
+}
+.long-task {
+  padding: 20px;
+  background: #101b1577;
+  border: 1px solid #4f6344;
+  margin-top: 20px;
+}
+.long-task h3 {
+  font: 500 17px/1.7 "Noto Serif KR";
+  color: #d2c49e;
+  margin: 12px 0;
+}
+.long-task-progress {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  color: #a4b993;
+  margin: 18px 0 9px;
+}
+.long-task-progress strong {
+  font-weight: 500;
+  color: #dbceaa;
+}
+.long-task progress {
+  width: 100%;
+  height: 7px;
+  accent-color: #c5b77c;
+  background: #354830;
+  border: 0;
+}
+.long-task progress::-webkit-progress-bar {
+  background: #354830;
+}
+.long-task progress::-webkit-progress-value {
+  background: #c5b77c;
+}
+.long-task-stats {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin: 15px 0;
+}
+.long-task-stats span {
+  font-size: 10px;
+  padding: 5px 8px;
+  border: 1px solid #495c3c;
+  color: #c4c9a5;
+}
+.long-training-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.long-training-panel .primary,
+.long-training-panel .secondary {
+  font-size: 12px;
+  padding: 12px 16px;
+}
+.long-completed {
+  padding: 13px 15px;
+  margin: 16px 0;
+  border-left: 2px solid #9c9b64;
+  background: #a0ac4e0a;
+}
+.long-completed strong,
+.long-completed span {
+  display: block;
+  font-size: 11px;
+  color: #d2c99f;
+}
+.long-completed span {
+  font-size: 10px;
+  color: #9cae8d;
+  margin-top: 7px;
+}
+@media (max-width: 760px) {
+  .long-training-panel {
+    padding: 20px 15px;
+  }
+  .long-training-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .long-training-heading h2 {
+    font-size: 21px;
+  }
+  .long-training-form {
+    grid-template-columns: 1fr;
+  }
+  .long-task {
+    padding: 15px 12px;
+  }
+  .long-task-progress {
+    flex-direction: column;
+    gap: 5px;
+  }
+  .long-training-panel .primary,
+  .long-training-panel .secondary {
+    font-size: 11px;
+  }
+  .long-training-buttons {
+    flex-direction: column;
+  }
+}
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  .long-training-form select {
+    font-size: 16px;
+  }
+}
