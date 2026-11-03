@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#111a18" />
+    <meta
+      name="description"
+      content="당신의 재능을 깨우고, 단 하나의 강호를 시작하세요."
+    />
+    <title>강호초행 — 천명의 서</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700;900&family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <header>
+      <a href="./" class="brand"
+        ><span class="seal">江湖</span
+        ><span>강호초행<small>THE FIRST JOURNEY</small></span></a
+      >
+      <nav>
+        <span id="nav-fate" class="active">천명의 서</span
+        ><span id="nav-character" class="locked">인물 생성</span>
+      </nav>
+      <span class="version">序章 <i></i> 운명의 시작</span>
+    </header>
+    <main id="fate-screen">
+      <section class="intro">
+        <div>
+          <div class="eyebrow">CHAPTER ZERO · 天命</div>
+          <h1>당신의 강호는,<br /><em>어떤 운명으로 시작될까요.</em></h1>
+          <p>
+            태생은 하늘이 정하고, 걸어갈 길은 당신이 정합니다.<br />잠들어 있는
+            재능을 깨워 나만의 이야기를 시작하세요.
+          </p>
+          <div class="chapter">
+            <span>壹</span> 재능을 마주하다 <b>────</b> <span>貳</span> 운명을
+            택하다 <b>────</b> <span>參</span> 강호로 향하다
+          </div>
+        </div>
+        <div class="landscape" aria-hidden="true">
+          <svg viewBox="0 0 600 330">
+            <defs>
+              <linearGradient id="mist" x2="0" y2="1">
+                <stop stop-color="#8d9f8c" stop-opacity=".35" />
+                <stop offset="1" stop-color="#18231f" stop-opacity="0" />
+              </linearGradient>
+              <radialGradient id="moon">
+                <stop stop-color="#ded3ab" />
+                <stop offset="1" stop-color="#b8ac85" />
+              </radialGradient>
+            </defs>
+            <circle cx="410" cy="92" r="55" fill="url(#moon)" opacity=".65" />
+            <path
+              d="M0 210L60 170 105 190 193 66 241 137 275 112 352 207 414 158 470 190 520 126 600 210V330H0Z"
+              fill="#506358"
+              opacity=".32"
+            />
+            <path
+              d="M0 270L80 230 180 258 291 151 326 180 356 155 443 263 520 208 600 248V330H0Z"
+              fill="#344c40"
+            />
+            <path
+              d="M0 300L66 267 156 287 203 254 289 305 383 260 441 280 510 257 600 300V330H0Z"
+              fill="#1e352b"
+            />
+            <path
+              d="M215 305Q310 252 600 285M40 250Q270 240 440 250"
+              stroke="#a4ad94"
+              stroke-width="15"
+              opacity=".06"
+              fill="none"
+            />
+            <g fill="#111d18">
+              <path
+                d="M464 290V211h5v79M435 229l32-32 31 32h-15l-16-16-17 16Z"
+              />
+              <path
+                d="M443 230h47v5h-47M446 235h5v34h-5M482 235h5v34h-5M438 268h59v5h-59"
+              />
+              <path
+                d="M565 285l-4-118h4l5 118M564 190l-35-17 6-3 29 13M564 207l25-29 4 4-27 33M561 174l-12-15 3-4 12 12"
+              />
+              <path d="M520 170q25-29 46-15 26-20 34 14-24 9-35 1-31 14-45 0" />
+            </g>
+            <g fill="#b6bd9d" opacity=".5">
+              <path d="M286 63q7-8 14 0-7-3-14 0M310 75q5-6 10 0-5-2-10 0" />
+            </g></svg
+          ><span class="vertical-poem">一念入江湖<br />此生任逍遙</span>
+        </div>
+      </section>
+      <div class="workspace">
+        <section class="fate-panel">
+          <div class="panel-top">
+            <div>
+              <span class="eyebrow">YOUR DESTINY</span>
+              <h2>천명의 서 <span>天命之書</span></h2>
+            </div>
+            <div class="roll-counter">
+              남은 기회 <strong id="count">0</strong
+              ><span class="draw-total">
+                / <span id="draw-total">10</span></span
+              >
+            </div>
+          </div>
+          <div class="draw-budget">
+            <div id="draw-dots" role="img"></div>
+            <span id="budget-note"></span>
+          </div>
+          <div class="summon-tools">
+            <span id="summon-status" role="status"
+              >靜候天命 · 고요히 운명을 기다립니다</span
+            ><button id="sound" aria-pressed="false">♪ 효과음 꺼짐</button>
+          </div>
+          <div id="fate" aria-live="polite"></div>
+          <div id="summon-cover" aria-hidden="true">
+            <div class="summon-circle">
+              <span>命</span>
+              <div class="seal-orbit">
+                乾 · 坤 · 震 · 巽 · 坎 · 離 · 艮 · 兌
+              </div>
+            </div>
+            <h3>하늘이 당신의 운명을 살핍니다</h3>
+            <p>흩어진 기운이 하나로 모입니다…</p>
+          </div>
+          <div id="reveal-banner" aria-hidden="true"></div>
+          <div id="particles" aria-hidden="true"></div>
+          <div class="actions">
+            <button id="roll" class="primary">
+              <span>⟳</span> 운명 다시 굴리기 <kbd>SPACE</kbd></button
+            ><button id="keep" class="secondary">＋ 이 운명 보관</button
+            ><button id="skip" hidden>연출 건너뛰기 ≫</button>
+          </div>
+          <div class="panel-note">
+            <span>✧</span> 재능은 시작점일 뿐, 당신의 한계를 정하지 않습니다.
+          </div>
+        </section>
+        <aside>
+          <section class="saved-panel">
+            <div class="aside-heading">
+              <h2>남겨둔 운명</h2>
+              <span>한 자리의 인연</span>
+            </div>
+            <div id="saved"></div>
+          </section>
+          <details class="probabilities">
+            <summary>天命 · 재능 등장 확률 <span>＋</span></summary>
+            <div class="probability-inner">
+              <p>능력치 4개를 각각 독립적으로 추첨합니다.</p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>등급</th>
+                    <th>능력치</th>
+                    <th>확률</th>
+                  </tr>
+                </thead>
+                <tbody id="probability-body"></tbody>
+              </table>
+              <div class="rare-probability">
+                ✦ 희귀 선천 재능 <strong id="rare-rate">1%</strong>
+              </div>
+              <p>
+                천무지체·백독불침의 싹 각 0.5%. 일반 선천 재능 6종은 각
+                16.5%입니다. 출신 6종은 균등 확률, 시련은 30% 확률로 부여됩니다.
+              </p>
+              <p>
+                능력치는 등급을 먼저 뽑고, 해당 범위 안에서 균등하게 정합니다.
+                각 추첨은 독립적이며 누적 보정은 없습니다.
+              </p>
+            </div>
+          </details>
+          <section class="guide">
+            <span class="eyebrow">A PATH OF YOUR OWN</span>
+            <h3>천하에 같은 길은 없다</h3>
+            <p>
+              문파의 가르침 아래 단단해지거나,<br />홀로 강호를 떠돌며 기연을
+              만나세요.
+            </p>
+            <div class="paths">
+              <span
+                >山 <b>문파 입문</b><small>가르침 · 사형제 · 비무</small></span
+              ><span>風 <b>독행 강호</b><small>자유 · 모험 · 기연</small></span>
+            </div>
+            <p class="muted">다음 여정에서 만나게 될 이야기입니다.</p>
+          </section>
+          <button id="choose" class="enter">
+            이 운명으로 시작하기 <span>↗</span>
+          </button>
+          <p class="local-note">
+            남은 횟수와 운명은 이 브라우저에 자동 보관됩니다.
+          </p>
+        </aside>
+      </div>
+      <footer>
+        <span>江湖初行 <b>강호초행</b></span
+        ><span>수많은 운명 중, 단 하나의 이야기.</span
+        ><span>재능 생성 프로토타입 · 01</span>
+      </footer>
+    </main>
+    <section id="character-screen" hidden aria-labelledby="character-title">
+      <div class="character-top">
+        <button id="back-fate" class="text-button">
+          ← 천명의 서로 돌아가기</button
+        ><span class="eyebrow">CHAPTER ONE · 形象</span>
+      </div>
+      <div class="character-heading">
+        <div>
+          <span class="eyebrow">GIVE YOUR DESTINY A FACE</span>
+          <h1 id="character-title">강호에 남길, 당신의 모습.</h1>
+          <p>
+            이름과 모습을 정하세요. 어떤 얼굴이든, 걸어갈 길은 당신의 것입니다.
+          </p>
+        </div>
+        <span class="character-seal" aria-hidden="true">初<br />行</span>
+      </div>
+      <div class="character-layout">
+        <aside class="portrait-preview-panel">
+          <div class="portrait-frame">
+            <div id="portrait-preview" class="portrait-art" role="img"></div>
+            <span class="portrait-corner top-left"></span
+            ><span class="portrait-corner bottom-right"></span
+            ><span id="portrait-style-label"></span>
+          </div>
+          <div class="preview-caption">
+            <small>江湖初行 · 初入江湖</small>
+            <h2 id="name-preview">이름 없는 무인</h2>
+            <p id="portrait-description"></p>
+          </div>
+          <div id="character-fate-summary"></div>
+        </aside>
+        <div class="character-controls">
+          <section class="creation-block">
+            <div class="block-heading">
+              <h2><span>壹</span> 성별</h2>
+              <small>기본 능력치에 영향을 주지 않습니다.</small>
+            </div>
+            <div class="gender-toggle" role="group" aria-label="성별">
+              <button data-gender="male" aria-pressed="true">
+                男 <span>남성</span></button
+              ><button data-gender="female" aria-pressed="false">
+                女 <span>여성</span>
+              </button>
+            </div>
+          </section>
+          <section class="creation-block">
+            <div class="block-heading">
+              <h2><span>貳</span> 강호의 이름</h2>
+              <small>2–12자</small>
+            </div>
+            <div class="name-input-row">
+              <label class="sr-only" for="character-name">캐릭터 이름</label
+              ><input
+                id="character-name"
+                maxlength="12"
+                minlength="2"
+                placeholder="이름을 입력하세요"
+                autocomplete="off"
+              /><button id="random-name" class="secondary">이름 짓기 ⟳</button>
+            </div>
+            <p id="name-error" role="status"></p>
+          </section>
+          <section class="creation-block">
+            <div class="block-heading">
+              <h2><span>參</span> 외모 선택</h2>
+              <small>이름과 외형은 자유롭게 조합할 수 있습니다.</small>
+            </div>
+            <div
+              id="portrait-options"
+              class="portrait-options"
+              role="group"
+              aria-label="초상화 세트"
+            ></div>
+            <div class="ai-coming">
+              <span>✧</span>
+              <div>
+                <strong>나만의 모습으로</strong>
+                <p>AI 초상화 생성은 이후 추가됩니다.</p>
+              </div>
+              <span class="coming-badge">준비 중</span>
+            </div>
+          </section>
+          <div id="character-saved-note" role="status"></div>
+          <button id="confirm-character" class="primary character-confirm">
+            이 모습으로 인연을 만나기 <span>↗</span>
+          </button>
+          <p class="character-storage-note">
+            선택한 재능·이름·외모가 함께 저장됩니다.
+          </p>
+        </div>
+      </div>
+    </section>
+    <section id="encounter-screen" hidden aria-labelledby="encounter-title">
+      <div class="encounter-heading">
+        <span class="eyebrow">PROLOGUE · 宿緣</span>
+        <h1 id="encounter-title">
+          강호에 나서기 전,<br />당신을 스쳐 간 인연.
+        </h1>
+        <p>어떤 만남은 한 생의 방향을 바꿉니다.</p>
+      </div>
+      <div class="encounter-layout">
+        <aside class="encounter-person">
+          <div id="encounter-portrait" class="portrait-art"></div>
+          <h2 id="encounter-name"></h2>
+          <p id="encounter-origin"></p>
+          <div class="encounter-rates">
+            <span>큰 기연 <b>10%</b></span
+            ><span>작은 인연 <b>20%</b></span
+            ><span>평범한 출발 <b>70%</b></span>
+          </div>
+          <small>출신·재능과 무관하게 같은 확률로 추첨됩니다.</small>
+        </aside>
+        <div class="encounter-scroll">
+          <div id="encounter-before">
+            <div class="sealed-fate"><span>緣</span></div>
+            <h2>아직 펼쳐지지 않은 이야기</h2>
+            <p id="encounter-intro"></p>
+            <p class="encounter-once">
+              이 인물의 시작 인연은 한 번만 정해집니다.<br />펼친 뒤에는 재능과
+              인물을 다시 고를 수 없습니다.
+            </p>
+            <button id="draw-encounter" class="primary">
+              단 한 번의 인연을 펼치기 <span>↗</span></button
+            ><button id="encounter-back" class="text-button">
+              ← 인물 설정으로 돌아가기
+            </button>
+          </div>
+          <div id="encounter-result" hidden>
+            <span id="encounter-rank" class="eyebrow"></span>
+            <h2 id="encounter-result-title"></h2>
+            <p id="encounter-story"></p>
+            <div id="encounter-rewards"></div>
+            <p id="encounter-future"></p>
+            <button id="enter-world" class="primary">
+              첫날 아침을 맞이하기 <span>↗</span></button
+            ><small class="encounter-recorded"
+              >이 인연은 이미 기록되었습니다.</small
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="world-screen" hidden aria-labelledby="world-title">
+      <div class="world-header">
+        <div>
+          <span class="eyebrow">FIRST SEVEN DAYS · 江湖初行</span>
+          <h1 id="world-title"></h1>
+          <p id="world-time"></p>
+        </div>
+        <button id="review-encounter" class="secondary">
+          시작 인연 돌아보기
+        </button>
+      </div>
+      <div class="world-layout">
+        <aside class="world-player">
+          <div id="world-portrait" class="portrait-art"></div>
+          <h2 id="world-player-name"></h2>
+          <p id="world-background"></p>
+          <div id="world-resources"></div>
+          <h3>수련과 인연</h3>
+          <div id="world-growth"></div>
+          <h3>소지품</h3>
+          <ul id="world-items"></ul>
+        </aside>
+        <div>
+          <section
+            id="road-event-panel"
+            class="road-event-panel"
+            tabindex="-1"
+            aria-label="돌발 사건"
+            hidden
+          ></section>
+          <div id="world-goal" class="world-goal"></div>
+          <section
+            id="alignment-panel"
+            class="alignment-panel"
+            aria-label="강호 성향"
+          ></section>
+          <div id="world-actions" class="world-actions"></div>
+          <section
+            id="martial-panel"
+            class="martial-panel"
+            tabindex="-1"
+            aria-label="나의 무공과 심법"
+          ></section>
+          <section class="world-log">
+            <div class="aside-heading">
+              <h2>강호 일지</h2>
+              <span>행동마다 오전·오후가 흐릅니다</span>
+            </div>
+            <div id="world-log-entries" aria-live="polite"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+    <div id="cinema" aria-hidden="true">
+      <div class="cinema-vignette"></div>
+      <div class="heaven-ray"></div>
+      <div class="celestial-disc">
+        <div class="disc-orbit orbit-one"></div>
+        <div class="disc-orbit orbit-two"></div>
+        <div class="disc-octagon"></div>
+        <div class="disc-runes">
+          <span>乾</span><span>兌</span><span>離</span><span>震</span
+          ><span>巽</span><span>坎</span><span>艮</span><span>坤</span>
+        </div>
+        <div class="disc-core">命</div>
+      </div>
+      <div class="cinema-particles"></div>
+      <div class="cinema-copy">
+        <span id="cinema-kicker">凝氣 · CONVERGENCE</span>
+        <h2 id="cinema-title">天 命</h2>
+        <p id="cinema-sub">萬般皆有定，一念入江湖</p>
+        <div class="cinema-rule"></div>
+      </div>
+      <div class="ink-sweep"></div>
+    </div>
+    <div class="ambient-motes" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <div id="toast" role="status"></div>
+    <dialog id="dialog">
+      <button class="close" aria-label="닫기">×</button>
+      <div class="eyebrow">YOUR STORY BEGINS</div>
+      <h2>운명이 정해졌습니다.</h2>
+      <div id="chosen"></div>
+      <p>
+        이 인물의 출신·재능·이름·외모를 저장했습니다.<br />문파 입문과 강호
+        탐험은 다음 제작 단계에서 이어집니다.
+      </p>
+      <button class="primary close-action">인물 화면 돌아가기</button>
+    </dialog>
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
