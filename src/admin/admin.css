@@ -929,3 +929,13 @@ dialog::backdrop {
     transition: none !important;
   }
 }
+
+/* iOS Safari zooms focused controls below 16px. Keep touch forms readable
+   without disabling pinch-to-zoom or changing the desktop editor. */
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
