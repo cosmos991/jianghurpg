@@ -18,6 +18,9 @@ jobs:
       - run: npm test
       - run: npm run test:db
       - run: npm run build
+        env:
+          VITE_SUPABASE_URL: https://admin-test.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_browser_test_only
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4

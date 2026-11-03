@@ -1,7 +1,14 @@
 import { defineConfig } from "vite";
-
+import { fileURLToPath } from "node:url";
 export default defineConfig({
-  // Relative URLs also work when hosted under /jianghurpg/ on GitHub Pages.
   base: "./",
-  build: { target: "es2022" },
+  build: {
+    target: "es2022",
+    rollupOptions: {
+      input: {
+        game: fileURLToPath(new URL("./index.html", import.meta.url)),
+        admin: fileURLToPath(new URL("./admin/index.html", import.meta.url)),
+      },
+    },
+  },
 });
