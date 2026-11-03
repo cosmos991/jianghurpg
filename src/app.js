@@ -1,3 +1,5 @@
+import { mountProgression } from "./progression-ui.js";
+import { sectArts, sects, ensureProgress } from "./game/progression.js";
 import { loadSave, saveGame } from "./game/storage.js";
 import {
   DRAW_RULES,
@@ -23,6 +25,7 @@ import {
   kindFromTicket,
   martialPhase,
 } from "./game/rules.js";
+Object.assign(martialCatalog, sectArts);
 const $ = (s) => document.querySelector(s);
 
 let state;
@@ -870,7 +873,7 @@ function finishWorldTurn(text) {
   maybeRoadEvent();
   if (j.turn === 14)
     addLog(
-      "첫 일주일을 마쳤습니다. 익힌 무공과 인연을 바탕으로 다음에는 문파 입문 또는 독행을 선택하게 됩니다.",
+      "첫 일주일을 마쳤습니다. 익힌 무공과 인연을 바탕으로 이제 문파를 방문해 입문 시험을 치르거나 독행을 이어갈 수 있습니다.",
       "첫 여정 완료",
     );
   persist();
@@ -903,7 +906,7 @@ function martialOperation(id, operation) {
   const j = state.journey,
     c = martialCatalog[id];
   if (!j || !c || state.screen !== "world") return;
-  if (j.pendingEvent) {
+  if (j.pendingEvent || progression.locked()) {
     notify("먼저 눈앞의 사건에서 선택해주세요.");
     return;
   }
@@ -916,7 +919,7 @@ function martialOperation(id, operation) {
     renderWorld();
     return;
   }
-  if (j.turn >= 14) return;
+
   if (operation === "dojo") {
     ensureAcademy(j);
     if (!j.academy.enrolled) {
@@ -973,9 +976,8 @@ function martialOperation(id, operation) {
 }
 function worldAction(kind) {
   const j = state.journey;
-  if (!j || !state.encounter || state.screen !== "world" || j.turn >= 14)
-    return;
-  if (j.pendingEvent) {
+  if (!j || !state.encounter || state.screen !== "world") return;
+  if (j.pendingEvent || progression.locked()) {
     notify("먼저 눈앞의 사건에서 선택해주세요.");
     return;
   }
@@ -1029,6 +1031,11 @@ function worldAction(kind) {
       return;
     }
     const gain =
+      (j.activeMind === "wudangMind"
+        ? 2
+        : ["huashanMind", "shaolinMind"].includes(j.activeMind)
+          ? 1
+          : 0) +
       2 +
       Math.floor(f.stats[2] / 30) +
       (e.id === "meridian" ? 3 : 0) +
@@ -1071,8 +1078,8 @@ function worldAction(kind) {
 }
 function buyFood() {
   const j = state.journey;
-  if (!j || state.screen !== "world" || j.turn >= 14) return;
-  if (j.pendingEvent) {
+  if (!j || state.screen !== "world") return;
+  if (j.pendingEvent || progression.locked()) {
     notify("먼저 눈앞의 사건에서 선택해주세요.");
     return;
   }
@@ -1119,14 +1126,14 @@ function academyCard() {
     cost = encounterDetails().id === "letter" ? 0 : 5;
   return j.academy.enrolled
     ? `<div class="academy-card enrolled"><span class="academy-mark">學</span><div><small>청계학관 · 재학 중</small><h3>학관 수강 과목</h3><p>입학금 납부 완료 · 기초 수업료 없음<br>과목 습득마다 행동 1회·기력 8 소모. 문파 소속과는 별개입니다.</p></div></div>`
-    : `<div class="academy-card"><span class="academy-mark">學</span><div><small>청계학관 · 입학 안내</small><h3>무공을 배우기 위한 첫걸음</h3><p>입학해야 기초 무공과 심법의 수강 과목을 고를 수 있습니다.<br>입학금 ${cost ? "은전 5" : "면제 · 추천서 보유"} · 행동 1회 · 기력 8<br>출생·성향 제한 없음. 입학은 문파 가입과 별개입니다.</p><button id="enroll-academy" ${j.turn >= 14 || j.pendingEvent ? "disabled" : ""}>${j.turn >= 14 ? "첫 일주일 완료 · 입학은 다음 여정에서" : `청계학관 입학하기${cost ? " · 5닢" : " · 입학금 면제"}`}</button><small class="academy-own">가전 무공과 기연의 전승은 입학 없이도 해독·습득·수련할 수 있습니다.</small></div></div>`;
+    : `<div class="academy-card"><span class="academy-mark">學</span><div><small>청계학관 · 입학 안내</small><h3>무공을 배우기 위한 첫걸음</h3><p>입학해야 기초 무공과 심법의 수강 과목을 고를 수 있습니다.<br>입학금 ${cost ? "은전 5" : "면제 · 추천서 보유"} · 행동 1회 · 기력 8<br>출생·성향 제한 없음. 입학은 문파 가입과 별개입니다.</p><button id="enroll-academy" ${j.pendingEvent || progression.locked() ? "disabled" : ""}>${`청계학관 입학하기${cost ? " · 5닢" : " · 입학금 면제"}`}</button><small class="academy-own">가전 무공과 기연의 전승은 입학 없이도 해독·습득·수련할 수 있습니다.</small></div></div>`;
 }
 function enrollAcademy() {
   const j = state.journey;
   if (!j || state.screen !== "world") return;
   ensureAcademy(j);
-  if (j.academy.enrolled || j.turn >= 14) return;
-  if (j.pendingEvent) {
+  if (j.academy.enrolled) return;
+  if (j.pendingEvent || progression.locked()) {
     notify("먼저 돌발 사건의 선택을 마쳐주세요.");
     return;
   }
@@ -1156,7 +1163,7 @@ function renderMartial() {
   ensureAcademy(j);
   const c = selectedTraining(),
     mind = activeMind(),
-    done = j.turn >= 14;
+    done = progression.locked();
   $("#martial-panel").innerHTML =
     `<div class="martial-heading"><div><span class="eyebrow">THE ARTS YOU PRACTICE</span><h2>나의 무공과 심법</h2></div><span>비급 보유 → 해독 → 습득 → 수련</span></div>${academyCard()}<div class="active-arts"><div><small>현재 집중 수련</small><strong>${c ? c.name : "선택한 무공 없음"}</strong><p>${c ? `${categoryNames[c.category]} · ${martialPhase(j.arts[j.trainingArt].xp)} · ${j.arts[j.trainingArt].xp}/100` : "학관에 입학하거나 보유 비급을 습득하세요."}</p></div><div><small>운용 중인 심법</small><strong>${mind ? mind.name : "아직 심법 미습득"}</strong><p>${mind ? `${martialPhase(j.arts[j.activeMind].xp)} · ${j.arts[j.activeMind].xp}/100 · 현재 내공 ${j.inner}` : `현재 내공 ${j.inner} · 심법을 배워야 운기조식이 가능합니다.`}</p></div></div><div class="martial-list">${Object.entries(
       martialCatalog,
@@ -1194,7 +1201,7 @@ function renderMartial() {
             : operation === "learn"
               ? "습득 · 기력 8"
               : "수강 과목 선택 · 수업료 없음";
-        return `<article class="martial-card ${active && learned ? "equipped" : ""}"><div class="martial-card-top"><span>${categoryNames[c.category]} · ${c.rank}</span><small>${learned && a.chapter === 2 ? "제2편 개방" : c.rank === "전승" ? "제1편" : ""}</small></div><h3>${c.name}</h3><div class="martial-status">${status}</div><p>${c.desc}</p><small class="martial-effect">${c.effect}</small>${learned ? `<div class="martial-meter" role="meter" aria-label="${c.name} 숙련도" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${a.xp}"><i style="width:${a.xp}%"></i></div>` : ""}<button data-art="${id}" data-operation="${operation}" ${j.pendingEvent || (learned && active) || (!learned && done) ? "disabled" : ""}>${label}</button>${!learned ? '<small class="martial-time">행동 1회 소모' + (operation === "dojo" ? " · 기력 8" : "") + "</small>" : ""}</article>`;
+        return `<article class="martial-card ${active && learned ? "equipped" : ""}"><div class="martial-card-top"><span>${categoryNames[c.category]} · ${c.rank}</span><small>${learned && a.chapter === 2 ? "제2편 개방" : c.rank === "전승" ? "제1편" : ""}</small></div><h3>${c.name}</h3><div class="martial-status">${status}</div><p>${c.desc}</p><small class="martial-effect">${c.effect}</small>${learned ? `<div class="martial-meter" role="meter" aria-label="${c.name} 숙련도" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${a.xp}"><i style="width:${a.xp}%"></i></div>` : ""}<button data-art="${id}" data-operation="${operation}" ${j.pendingEvent || progression.locked() || (learned && active) || (!learned && done) ? "disabled" : ""}>${label}</button>${!learned ? '<small class="martial-time">행동 1회 소모' + (operation === "dojo" ? " · 기력 8" : "") + "</small>" : ""}</article>`;
       })
       .join("")}</div>`;
   document
@@ -1207,6 +1214,7 @@ function renderMartial() {
   if (!j.academy.enrolled) $("#enroll-academy").onclick = enrollAcademy;
 }
 function renderWorld() {
+  ensureProgress(state.journey);
   const j = state.journey,
     f = state.chosen,
     o = startOrigins[f.origin],
@@ -1215,9 +1223,7 @@ function renderWorld() {
     mind = activeMind();
   $("#world-title").textContent = o.place;
   $("#world-time").textContent =
-    j.turn >= 14
-      ? "첫 일주일 완료 · 다음 여정을 준비합니다"
-      : `제${Math.floor(j.turn / 2) + 1}일 · ${j.turn % 2 ? "오후" : "오전"} · 작은 선택이 무인의 삶을 만듭니다`;
+    `제${Math.floor(j.turn / 2) + 1}일 · ${j.turn % 2 ? "오후" : "오전"} · 작은 선택이 무인의 삶을 만듭니다`;
   $("#world-portrait").style.backgroundPosition = portraitPosition(
     state.character,
   );
@@ -1226,7 +1232,7 @@ function renderWorld() {
   $("#world-resources").innerHTML =
     `<span>기력 <b>${j.energy} / 100</b></span><span>은전 <b>${j.money} 닢</b></span><span>식량 <b>${j.food}</b></span>`;
   $("#world-growth").innerHTML =
-    `<span>수련 무공 <b>${training ? training.name : "미선택"}</b></span><span>심법 <b>${mind ? mind.name : "미습득"}</b></span><span>내공 <b>${j.inner}</b></span><span>학관 <b>${j.academy.enrolled ? "청계학관 재학" : "미입학"}</b></span><span>강호의 단서 <b>${j.clues}</b></span><small>${escapeText(e.title)}</small>`;
+    `<span>수련 무공 <b>${training ? training.name : "미선택"}</b></span><span>심법 <b>${mind ? mind.name : "미습득"}</b></span><span>내공량 <b>${j.inner}점</b></span><span>문파 <b>${sects[j.progress?.sect]?.name || "무소속"}</b></span><span>학관 <b>${j.academy.enrolled ? "청계학관 재학" : "미입학"}</b></span><span>강호의 단서 <b>${j.clues}</b></span><small>${escapeText(e.title)}</small>`;
   $("#world-items").innerHTML = j.items
     .map((i) => `<li>${escapeText(i)}</li>`)
     .join("");
@@ -1258,16 +1264,17 @@ function renderWorld() {
   ]
     .map(
       ([id, mark, title, desc]) =>
-        `<button data-action="${id}" ${j.turn >= 14 || j.pendingEvent || (id === "train" && !training) || (id === "breathe" && !mind) ? "disabled" : ""}><span>${mark}</span><strong>${title}</strong><small>${desc}</small></button>`,
+        `<button data-action="${id}" ${j.pendingEvent || progression.locked() || (id === "train" && !training) || (id === "breathe" && !mind) ? "disabled" : ""}><span>${mark}</span><strong>${title}</strong><small>${desc}</small></button>`,
     )
     .join("");
   document.querySelectorAll("[data-action]").forEach((b) => {
     b.onclick = () =>
       b.dataset.action === "food" ? buyFood() : worldAction(b.dataset.action);
     b.dataset.recommended = String(
-      j.turn < 14 && b.dataset.action === playerSituation().next,
+      !progression.locked() && b.dataset.action === playerSituation().next,
     );
   });
+  progression.render();
   $("#world-log-entries").innerHTML = j.log
     .map(
       (l) =>
@@ -1279,7 +1286,7 @@ function playerSituation() {
   const j = state.journey,
     f = state.chosen,
     e = encounterDetails(),
-    completed = j.turn >= 14 && !j.pendingEvent,
+    completed = false,
     c = selectedTraining(),
     mind = activeMind();
   const stage = c
@@ -1287,7 +1294,7 @@ function playerSituation() {
     : mind
       ? "심법 입문 · 공격 무공 미습득"
       : "무공을 배우기 전";
-  const opening = `${state.character.name} 님은 ${startOrigins[f.origin].place}에 머무르는 ${j.academy?.enrolled ? "청계학관 학도이자 문파 무소속 입문자" : "문파 무소속 입문자"}입니다.`;
+  const opening = `${state.character.name} 님은 ${startOrigins[f.origin].place}에 머무르는 ${sects[j.progress?.sect] ? sects[j.progress.sect].name + " 외문제자" : j.academy?.enrolled ? "청계학관 학도이자 문파 무소속 입문자" : "문파 무소속 입문자"}입니다.`;
   const background =
     state.encounter.kind === "major"
       ? `큰 기연으로 ${e.item}을 얻었습니다. ${e.id === "scroll" && j.arts.nameless?.status !== "learned" ? "비급은 아직 익히지 못했습니다. 구결을 해독하고 습득해야 합니다." : e.id === "meridian" ? "기맥은 열렸지만, 심법에 따른 운기 수련으로 힘을 키워야 합니다." : j.decoded ? "전승의 다음 구결을 이해했습니다." : "귀한 전승을 기초부터 몸에 익히는 중입니다."}`
@@ -1362,6 +1369,10 @@ function playerSituation() {
     next = "event";
     reason =
       "사건의 선택지를 살펴보세요. 선택 결과가 정도·흑도·마도 성향과 상황에 반영됩니다.";
+  } else if (progression.locked()) {
+    title = "진행 중인 비무·수련을 마쳐주세요";
+    next = "progress";
+    reason = "위의 수련과 비무 화면에서 다음 행동을 선택하세요.";
   } else if (completed) {
     title = "첫 일주일의 발자취";
     reason =
@@ -1402,7 +1413,7 @@ function playerSituation() {
     reason,
     resourceNotes,
     completed,
-    day: Math.min(7, Math.floor(j.turn / 2) + 1),
+    day: Math.floor(j.turn / 2) + 1,
     period: j.turn % 2 ? "오후" : "오전",
     actionsLeft: Math.max(0, 14 - j.turn),
   };
@@ -1419,17 +1430,20 @@ function renderPlayerSituation() {
       food: "식량 구입",
       martial: "무공 입문",
       event: "돌발 사건 선택",
+      progress: "비무·수련 이어가기",
     };
   $("#world-goal").innerHTML =
-    `<div class="situation-top"><span class="eyebrow">YOUR CURRENT STORY · 지금 나의 상황</span><span class="situation-time">${view.completed ? "첫 7일 완료" : `제${view.day}일 ${view.period} · 남은 행동 ${view.actionsLeft}회`}</span></div><h2>${view.title}</h2><div class="situation-tags"><span>${j.academy.enrolled ? "청계학관 재학 · 문파 무소속" : "문파 무소속"}</span><span>${escapeText(alignmentIdentity().label)}</span><span>${escapeText(origins[state.chosen.origin].name)}</span><span>${state.encounter.kind === "major" ? "큰 기연" : state.encounter.kind === "minor" ? "작은 인연" : "평범한 출발"}</span></div><p class="situation-opening">${escapeText(view.opening)}</p><p class="situation-story">${escapeText(view.background)} ${escapeText(view.growth)}</p><div class="situation-conditions">${view.resourceNotes.map((n) => `<div class="${n.kind}"><small>${n.label}</small><strong>${n.text}</strong></div>`).join("")}</div><div class="situation-next"><span>${view.completed ? "다음 여정" : "추천 행동 · " + labels[view.next]}</span><p>${view.reason}</p>${view.next ? '<button id="view-suggestion" class="text-button">행동 살펴보기 ↓</button>' : ""}</div><div class="week-progress" role="meter" aria-label="첫 일주일 진행" aria-valuemin="0" aria-valuemax="14" aria-valuenow="${j.turn}"><i style="width:${(j.turn / 14) * 100}%"></i></div>`;
+    `<div class="situation-top"><span class="eyebrow">YOUR CURRENT STORY · 지금 나의 상황</span><span class="situation-time">${`제${view.day}일 ${view.period}${j.turn < 14 ? ` · 문파 방문까지 ${view.actionsLeft}회 행동` : " · 문파 입문과 독행"}`}</span></div><h2>${view.title}</h2><div class="situation-tags"><span>${sects[j.progress?.sect]?.name || (j.academy.enrolled ? "청계학관 재학 · 문파 무소속" : "문파 무소속")}</span><span>${escapeText(alignmentIdentity().label)}</span><span>${escapeText(origins[state.chosen.origin].name)}</span><span>${state.encounter.kind === "major" ? "큰 기연" : state.encounter.kind === "minor" ? "작은 인연" : "평범한 출발"}</span></div><p class="situation-opening">${escapeText(view.opening)}</p><p class="situation-story">${escapeText(view.background)} ${escapeText(view.growth)}</p><div class="situation-conditions">${view.resourceNotes.map((n) => `<div class="${n.kind}"><small>${n.label}</small><strong>${n.text}</strong></div>`).join("")}</div><div class="situation-next"><span>${view.completed ? "다음 여정" : "추천 행동 · " + labels[view.next]}</span><p>${view.reason}</p>${view.next ? '<button id="view-suggestion" class="text-button">행동 살펴보기 ↓</button>' : ""}</div><div class="week-progress" role="meter" aria-label="첫 일주일 진행" aria-valuemin="0" aria-valuemax="14" aria-valuenow="${Math.min(14, j.turn)}"><i style="width:${(Math.min(14, j.turn) / 14) * 100}%"></i></div>`;
   if (view.next)
     $("#view-suggestion").onclick = () => {
       const button =
-        view.next === "event"
-          ? $("#road-event-panel")
-          : view.next === "martial"
-            ? $("#martial-panel")
-            : document.querySelector(`[data-action="${view.next}"]`);
+        view.next === "progress"
+          ? $("#progression-panel")
+          : view.next === "event"
+            ? $("#road-event-panel")
+            : view.next === "martial"
+              ? $("#martial-panel")
+              : document.querySelector(`[data-action="${view.next}"]`);
       button?.scrollIntoView({
         behavior: reduced() ? "instant" : "smooth",
         block: "center",
@@ -1580,6 +1594,16 @@ function renderRoadEvent() {
           resolveRoadEvent(token, Number(b.dataset.roadChoice))),
     );
 }
+const progression = mountProgression({
+  state,
+  catalog: martialCatalog,
+  persist,
+  notify,
+  finishTurn: finishWorldTurn,
+  gainMartial,
+  renderWorld,
+});
+
 if (
   state.encounter &&
   state.journey &&

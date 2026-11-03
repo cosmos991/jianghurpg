@@ -323,7 +323,7 @@ export const martialCatalog = {
     category: "body",
     rank: "기초",
     desc: "자세와 호흡을 맞추어 육체를 단련하는 외공.",
-    effect: "외공의 숙련도를 쌓습니다. 전투 효과는 전투 구현 시 연결됩니다.",
+    effect: "숙련도에 따라 비무 체력과 방어가 성장합니다.",
     dojo: true,
   },
   sword: {
@@ -361,7 +361,7 @@ export const martialCatalog = {
     category: "move",
     rank: "기초",
     desc: "무게중심과 발걸음을 익히는 기본 보법.",
-    effect: "신법 자질에 따라 보법 숙련도가 성장합니다.",
+    effect: "신법 자질에 따라 숙련도가 성장하고, 비무 방어를 보조합니다.",
     dojo: true,
   },
 };

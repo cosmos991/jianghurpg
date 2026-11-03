@@ -50,8 +50,9 @@ for (const viewport of [
       await page.locator('[data-action="rest"]').click();
       await resolveEvent();
     }
-    await expect(page.locator("#world-time")).toContainText("첫 일주일 완료");
-    await expect(page.locator('[data-action="rest"]')).toBeDisabled();
+    await expect(page.locator("#world-time")).toContainText("제8일");
+    await expect(page.locator('[data-action="rest"]')).toBeEnabled();
+    await expect(page.locator('[data-visit="huashan"]')).toBeVisible();
     const portraitLoaded = await page
       .locator("#world-portrait")
       .evaluate(async (el) => {

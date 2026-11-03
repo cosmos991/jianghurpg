@@ -3873,3 +3873,319 @@ body {
     font-size: 8px;
   }
 }
+
+/* Interactive practice, combat and sect entrance */
+.progression-panel {
+  border: 1px solid #716541;
+  background: linear-gradient(145deg, #243226, #152019);
+  padding: 26px;
+  margin-bottom: 20px;
+  scroll-margin-top: 20px;
+}
+.progress-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 18px;
+}
+.progress-heading h2 {
+  font:
+    600 23px "Noto Serif KR",
+    serif;
+  margin: 10px 0 0;
+}
+.progress-heading > span {
+  font-size: 11px;
+  color: var(--gold);
+}
+.growth-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 20px 0;
+}
+.growth-summary > div {
+  padding: 18px;
+  background: #0c181380;
+  border: 1px solid #566044;
+}
+.growth-summary small {
+  color: var(--muted);
+}
+.growth-summary strong {
+  display: block;
+  color: #e4ce93;
+  font:
+    500 30px "Noto Serif KR",
+    serif;
+  margin: 12px 0;
+}
+.growth-summary strong em {
+  font: 12px "Noto Sans KR";
+  margin-left: 8px;
+}
+.growth-summary p,
+.progression-panel p {
+  font-size: 12px;
+  line-height: 1.9;
+  color: #b0bca5;
+}
+.aptitude-summary {
+  font-size: 12px;
+  color: #bcc8ad;
+  padding-bottom: 16px;
+}
+.aptitude-summary summary {
+  cursor: pointer;
+}
+.breakthrough-card,
+.battle-arena,
+.drill-arena,
+.sect-membership,
+.sect-selection,
+.entrance-event,
+.battle-result {
+  border: 1px solid #43533d;
+  padding: 20px;
+  margin: 16px 0;
+  background: #101b1599;
+}
+.progression-panel h3 {
+  font:
+    500 18px "Noto Serif KR",
+    serif;
+  color: #ddd2ae;
+  margin: 0 0 16px;
+}
+.growth-meter {
+  margin: 13px 0;
+}
+.growth-meter > span {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #b0bea4;
+}
+.growth-meter b {
+  font-weight: 500;
+  color: #e1d6b7;
+}
+.growth-meter progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  margin-top: 9px;
+  accent-color: #c8b582;
+  border: 0;
+  background: #354332;
+}
+.growth-meter progress::-webkit-progress-bar {
+  background: #354332;
+}
+.growth-meter progress::-webkit-progress-value {
+  background: linear-gradient(90deg, #8e9d68, #dac18a);
+}
+.progression-panel button {
+  border: 1px solid #807448;
+  background: #293c29;
+  color: #e2d7b4;
+  padding: 12px 16px;
+  line-height: 1.6;
+}
+.progression-panel button:hover:enabled {
+  background: #3c5033;
+}
+.progression-panel button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.progression-panel .text-button {
+  background: none;
+  border-color: transparent;
+  display: block;
+  margin-top: 12px;
+  color: #aab99a;
+}
+.training-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.training-options button {
+  text-align: left;
+}
+.training-options strong,
+.training-options small {
+  display: block;
+}
+.training-options small {
+  font-size: 10px;
+  color: #b4bf9e;
+  margin-top: 9px;
+  font-weight: 400;
+}
+.combatants {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+.combatants h4 {
+  font-weight: 500;
+  color: var(--gold);
+  margin: 14px 0;
+}
+.enemy-intent {
+  border-left: 2px solid #c7ad70;
+  padding-left: 12px;
+  min-height: 45px;
+}
+.battle-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 18px 0;
+}
+.battle-controls button {
+  flex: 1;
+  min-width: 90px;
+}
+.combat-log {
+  max-height: 210px;
+  overflow: auto;
+  background: #07110d66;
+  padding: 10px 14px;
+  overscroll-behavior: contain;
+}
+.combat-log p {
+  font-size: 11px;
+  margin: 7px 0;
+}
+.combat-log p:first-child {
+  color: #e2d1a4;
+}
+.drill-cue {
+  padding: 24px;
+  text-align: center;
+  font: 500 30px "Noto Serif KR";
+  color: #e1c884;
+  border-block: 1px solid #5a6345;
+  background: radial-gradient(ellipse, #a29c3b15, transparent);
+}
+.sect-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.sect-cards article {
+  padding: 18px 14px;
+  border: 1px solid #4b593e;
+  background: #28362644;
+}
+.sect-cards h4 {
+  font: 500 18px "Noto Serif KR";
+  margin: 10px 0;
+}
+.sect-cards button {
+  width: 100%;
+  padding: 10px;
+}
+.sect-mark {
+  font: 30px "Noto Serif KR";
+  color: var(--gold);
+}
+.sect-membership small,
+.progress-note {
+  font-size: 10px !important;
+  color: #8d9e83 !important;
+  line-height: 1.8;
+}
+.entrance-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+  counter-reset: entrance;
+}
+.entrance-steps li {
+  font-size: 10px;
+  color: #c0bb9c;
+  border: 1px solid #4c5d42;
+  padding: 7px;
+  counter-increment: entrance;
+}
+.entrance-steps li:before {
+  content: counter(entrance) ". ";
+  color: var(--gold);
+}
+.entrance-choices {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+.entrance-choices button {
+  text-align: left;
+}
+@media (max-width: 760px) {
+  .progression-panel {
+    padding: 18px 14px;
+  }
+  .progress-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .progress-heading h2 {
+    font-size: 20px;
+  }
+  .growth-summary {
+    gap: 9px;
+  }
+  .growth-summary > div {
+    padding: 12px;
+  }
+  .growth-summary strong {
+    font-size: 23px;
+  }
+  .growth-summary p {
+    font-size: 10px;
+  }
+  .training-options {
+    grid-template-columns: 1fr;
+  }
+  .combatants {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .sect-cards {
+    grid-template-columns: 1fr;
+  }
+  .sect-cards article {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    column-gap: 10px;
+  }
+  .sect-cards p,
+  .sect-cards button {
+    grid-column: 2;
+  }
+  .sect-cards p {
+    margin-top: 0;
+  }
+  .battle-arena,
+  .drill-arena,
+  .sect-membership,
+  .sect-selection,
+  .entrance-event,
+  .breakthrough-card {
+    padding: 16px 12px;
+  }
+  .battle-controls button {
+    min-width: 110px;
+  }
+  .progression-panel h3 {
+    font-size: 16px;
+  }
+}
