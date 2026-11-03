@@ -348,7 +348,7 @@ export function mountProgression({
       )
         .map(
           ([id, sect]) =>
-            `<article><span class="sect-mark">${sect.mark}</span><h4>${sect.name}</h4><p>${sect.style}</p><button data-visit="${id}" ${busy || !canVisitSect(state.journey, sect) ? "disabled" : ""}>${canVisitSect(state.journey, sect) ? "문파 방문" : "첫 7일 또는 금기 인연 필요"}</button></article>`,
+            `<article><span class="sect-mark">${sect.mark}</span><h4>${sect.name}</h4><p>${sect.style}</p><button data-visit="${id}" ${busy || !canVisitSect(state.journey, sect) ? "disabled" : ""}>${canVisitSect(state.journey, sect) ? "문파 방문" : sect.dark ? "첫 7일 또는 금기 인연 필요" : "첫 7일 이후 방문 가능"}</button></article>`,
         )
         .join("")}</div></div>`;
     const exam = p.exam,
