@@ -15,6 +15,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/src/styles/main.css" />
+    <link rel="stylesheet" href="/src/styles/mobile.css" />
   </head>
   <body>
     <header>
@@ -356,16 +357,29 @@
           시작 인연 돌아보기
         </button>
       </div>
+      <nav class="mobile-world-nav" aria-label="게임 화면 바로가기">
+        <a href="#world-actions">행동</a
+        ><a href="#long-training-panel">장기 수련</a
+        ><a href="#progression-panel">비무·문파</a
+        ><a href="#martial-panel">무공</a><a href="#world-log">기록</a>
+      </nav>
       <div class="world-layout">
         <aside class="world-player">
           <div id="world-portrait" class="portrait-art"></div>
           <h2 id="world-player-name"></h2>
           <p id="world-background"></p>
           <div id="world-resources"></div>
-          <h3>수련과 인연</h3>
-          <div id="world-growth"></div>
-          <h3>소지품</h3>
-          <ul id="world-items"></ul>
+          <details
+            id="world-profile-details"
+            class="world-profile-details"
+            open
+          >
+            <summary>성장·소지품 자세히 보기</summary>
+            <h3>수련과 인연</h3>
+            <div id="world-growth"></div>
+            <h3>소지품</h3>
+            <ul id="world-items"></ul>
+          </details>
         </aside>
         <div>
           <section
@@ -375,6 +389,8 @@
             aria-label="돌발 사건"
             hidden
           ></section>
+          <div id="world-actions" class="world-actions"></div>
+          <div id="world-goal" class="world-goal"></div>
           <section
             id="long-training-panel"
             class="long-training-panel"
@@ -385,20 +401,20 @@
             class="progression-panel"
             aria-label="수련과 문파"
           ></section>
-          <div id="world-goal" class="world-goal"></div>
+
           <section
             id="alignment-panel"
             class="alignment-panel"
             aria-label="강호 성향"
           ></section>
-          <div id="world-actions" class="world-actions"></div>
+
           <section
             id="martial-panel"
             class="martial-panel"
             tabindex="-1"
             aria-label="나의 무공과 심법"
           ></section>
-          <section class="world-log">
+          <section id="world-log" class="world-log">
             <div class="aside-heading">
               <h2>강호 일지</h2>
               <span>행동마다 오전·오후가 흐릅니다</span>

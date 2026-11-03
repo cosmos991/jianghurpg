@@ -35,6 +35,12 @@ import {
 } from "./game/rules.js";
 Object.assign(martialCatalog, sectArts);
 const $ = (s) => document.querySelector(s);
+const mobileLayout = window.matchMedia("(max-width: 760px)");
+function updateProfileDisclosure() {
+  $("#world-profile-details").open = !mobileLayout.matches;
+}
+updateProfileDisclosure();
+mobileLayout.addEventListener("change", updateProfileDisclosure);
 
 let state;
 try {
@@ -1449,7 +1455,7 @@ function renderPlayerSituation() {
       progress: "비무·수련 이어가기",
     };
   $("#world-goal").innerHTML =
-    `<div class="situation-top"><span class="eyebrow">YOUR CURRENT STORY · 지금 나의 상황</span><span class="situation-time">${`${formatDate(j.turn)}${j.turn < 14 ? ` · 문파 방문까지 ${view.actionsLeft}회 행동` : " · 문파 입문과 독행"}`}</span></div><h2>${view.title}</h2><div class="situation-tags"><span>${sects[j.progress?.sect]?.name || (j.academy.enrolled ? "청계학관 재학 · 문파 무소속" : "문파 무소속")}</span><span>${escapeText(alignmentIdentity().label)}</span><span>${escapeText(origins[state.chosen.origin].name)}</span><span>${state.encounter.kind === "major" ? "큰 기연" : state.encounter.kind === "minor" ? "작은 인연" : "평범한 출발"}</span></div><p class="situation-opening">${escapeText(view.opening)}</p><p class="situation-story">${escapeText(view.background)} ${escapeText(view.growth)}</p><div class="situation-conditions">${view.resourceNotes.map((n) => `<div class="${n.kind}"><small>${n.label}</small><strong>${n.text}</strong></div>`).join("")}</div><div class="situation-next"><span>${view.completed ? "다음 여정" : "추천 행동 · " + labels[view.next]}</span><p>${view.reason}</p>${view.next ? '<button id="view-suggestion" class="text-button">행동 살펴보기 ↓</button>' : ""}</div><div class="week-progress" role="meter" aria-label="첫 일주일 진행" aria-valuemin="0" aria-valuemax="14" aria-valuenow="${Math.min(14, j.turn)}"><i style="width:${(Math.min(14, j.turn) / 14) * 100}%"></i></div>`;
+    `<div class="situation-top"><span class="eyebrow">YOUR CURRENT STORY · 지금 나의 상황</span><span class="situation-time">${`${formatDate(j.turn)}${j.turn < 14 ? ` · 문파 방문까지 ${view.actionsLeft}회 행동` : " · 문파 입문과 독행"}`}</span></div><h2>${view.title}</h2><div class="situation-tags"><span>${sects[j.progress?.sect]?.name || (j.academy.enrolled ? "청계학관 재학 · 문파 무소속" : "문파 무소속")}</span><span>${escapeText(alignmentIdentity().label)}</span><span>${escapeText(origins[state.chosen.origin].name)}</span><span>${state.encounter.kind === "major" ? "큰 기연" : state.encounter.kind === "minor" ? "작은 인연" : "평범한 출발"}</span></div><details class="situation-details" ${mobileLayout.matches ? "" : "open"}><summary>나의 상황 자세히 보기</summary><p class="situation-opening">${escapeText(view.opening)}</p><p class="situation-story">${escapeText(view.background)} ${escapeText(view.growth)}</p><div class="situation-conditions">${view.resourceNotes.map((n) => `<div class="${n.kind}"><small>${n.label}</small><strong>${n.text}</strong></div>`).join("")}</div></details><div class="situation-next"><span>${view.completed ? "다음 여정" : "추천 행동 · " + labels[view.next]}</span><p>${view.reason}</p>${view.next ? '<button id="view-suggestion" class="text-button">행동 살펴보기 ↓</button>' : ""}</div><div class="week-progress" role="meter" aria-label="첫 일주일 진행" aria-valuemin="0" aria-valuemax="14" aria-valuenow="${Math.min(14, j.turn)}"><i style="width:${(Math.min(14, j.turn) / 14) * 100}%"></i></div>`;
   if (view.next)
     $("#view-suggestion").onclick = () => {
       const button =

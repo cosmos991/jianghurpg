@@ -939,3 +939,160 @@ dialog::backdrop {
     font-size: 16px !important;
   }
 }
+
+/* Mobile authoring uses body-sized labels and touch targets, not desktop captions. */
+@media (max-width: 760px) {
+  body {
+    font-size: 16px;
+    line-height: 1.75;
+  }
+  .login-card > p,
+  .auth-intro > p,
+  .verify-help p {
+    font-size: 14px;
+    line-height: 1.85;
+    color: #c1cdb8;
+  }
+  label,
+  .login-card label {
+    font-size: 14px;
+    color: #d3dec8;
+  }
+  .eyebrow,
+  .sidebar-label {
+    font-size: 11px;
+  }
+  .back-link,
+  .brand small {
+    font-size: 12px;
+  }
+  .editor-top > div > p,
+  .section-description,
+  .score-summary > p {
+    font-size: 14px;
+    color: #c3cfb9;
+    line-height: 1.8;
+  }
+  .session-actions,
+  .editor-sidebar nav span {
+    font-size: 13px;
+  }
+  .editor-sidebar nav a {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
+  .editor-card h2 {
+    font-size: 23px;
+  }
+  .section-heading .secondary {
+    font-size: 13px;
+    min-height: 44px;
+  }
+  .field-help,
+  label small,
+  .result-rank,
+  .required-objectives p {
+    font-size: 12px;
+    color: #b7c6a9;
+    line-height: 1.8;
+  }
+  .objective-fields label,
+  .outcome-fields label {
+    font-size: 14px;
+  }
+  .row-number {
+    font-size: 16px;
+    color: #cfbe8a;
+  }
+  .required-objectives,
+  .checkbox-grid label {
+    font-size: 14px;
+  }
+  .checkbox-grid label {
+    min-height: 44px;
+    align-items: center;
+    color: #d0dcc2;
+  }
+  .required-objectives summary {
+    min-height: 44px;
+    padding: 8px 0;
+  }
+  .required-objectives summary span {
+    font-size: 12px;
+  }
+  .required-objectives input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
+  .score-summary span {
+    font-size: 13px;
+    color: #c4d0b8;
+  }
+  .score-summary strong {
+    font-size: 29px;
+  }
+  .score-summary small {
+    font-size: 13px;
+  }
+  .icon-button {
+    min-width: 40px;
+    min-height: 44px;
+  }
+  .objective-row {
+    gap: 8px;
+  }
+  .remove-objective {
+    position: absolute;
+    right: -7px;
+    top: 0;
+    margin: 0;
+  }
+  .objective-name {
+    padding-right: 22px;
+  }
+  .save-bar {
+    gap: 8px;
+    padding: 12px;
+  }
+  .save-bar > div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+  }
+  .save-bar strong {
+    font-size: 13px;
+  }
+  #saved-at {
+    display: none;
+  }
+  .save-bar > div:first-child .text-button {
+    font-size: 12px;
+    min-height: 40px;
+    white-space: nowrap;
+  }
+  .save-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 9px;
+  }
+  .save-actions button {
+    font-size: 14px;
+    min-height: 48px;
+    padding: 11px 12px;
+  }
+  #save-status,
+  #auth-status,
+  .validation-panel {
+    font-size: 14px;
+  }
+  .validation-panel ul {
+    font-size: 13px;
+  }
+  dialog p {
+    font-size: 14px;
+  }
+}
