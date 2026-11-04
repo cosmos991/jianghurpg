@@ -16,6 +16,7 @@
     />
     <link rel="stylesheet" href="/src/styles/main.css" />
     <link rel="stylesheet" href="/src/styles/mobile.css" />
+    <link rel="stylesheet" href="/src/styles/era.css" />
   </head>
   <body>
     <header>
@@ -357,6 +358,11 @@
           시작 인연 돌아보기
         </button>
       </div>
+      <section
+        id="era-banner"
+        class="era-banner"
+        aria-label="현재 시대"
+      ></section>
       <nav class="mobile-world-nav" aria-label="게임 화면 바로가기">
         <a href="#world-actions">행동</a
         ><a href="#long-training-panel">장기 수련</a
@@ -424,6 +430,64 @@
         </div>
       </div>
     </section>
+    <dialog
+      id="era-intro"
+      class="era-intro"
+      aria-labelledby="era-intro-title"
+      aria-describedby="era-intro-description"
+    >
+      <div class="era-intro-backdrop" aria-hidden="true"></div>
+      <div class="era-cloud" aria-hidden="true"></div>
+      <div class="era-cloud era-cloud-two" aria-hidden="true"></div>
+      <div class="era-intro-layout">
+        <div class="era-intro-top">
+          <span class="era-intro-brand">江湖 · 강호초행</span>
+          <div class="era-intro-controls">
+            <button id="era-intro-sound" type="button" aria-pressed="false">
+              ♪ 효과음 꺼짐</button
+            ><button id="era-intro-skip" type="button">건너뛰기 ≫</button>
+          </div>
+        </div>
+        <div class="era-intro-main">
+          <div class="era-intro-copy">
+            <div id="era-intro-glyph" class="era-glyph" aria-hidden="true">
+              劫
+            </div>
+            <div
+              id="era-intro-chapter"
+              class="era-chapter"
+              aria-hidden="true"
+            ></div>
+            <div id="era-intro-number" class="era-intro-number"></div>
+            <h1 id="era-intro-title"></h1>
+            <div class="era-title-rule" aria-hidden="true"></div>
+            <p id="era-intro-tagline" class="era-intro-tagline"></p>
+            <p id="era-intro-description" class="era-intro-description"></p>
+            <div class="era-intro-period">
+              <span class="era-period-label">이 시대의 시간</span
+              ><strong
+                id="era-intro-duration"
+                class="era-period-duration"
+              ></strong
+              ><span id="era-intro-range" class="era-intro-range"></span>
+            </div>
+          </div>
+        </div>
+        <div class="era-intro-footer">
+          <button
+            id="era-intro-enter"
+            class="era-enter"
+            type="button"
+            autofocus
+          >
+            이 시대에 발을 들인다 <span aria-hidden="true">↗</span>
+          </button>
+          <p class="era-intro-hint">
+            당신의 선택이 이 강호에 발자취를 남깁니다.
+          </p>
+        </div>
+      </div>
+    </dialog>
     <div id="cinema" aria-hidden="true">
       <div class="cinema-vignette"></div>
       <div class="heaven-ray"></div>

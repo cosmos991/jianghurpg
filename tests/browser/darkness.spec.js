@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures.js";
 const read = (p) =>
   p.evaluate(() => JSON.parse(localStorage.getItem("jianghu-fate-v1")));
 async function road(p) {

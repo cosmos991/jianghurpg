@@ -46,6 +46,10 @@ let doc = (
   await db.query("select public.era_editor_catalog('demonic_rise_v1') as doc")
 ).rows[0].doc;
 assert.equal(doc.objectives.length, 10);
+assert.equal(
+  (await db.query("select public.era_public_catalog() as doc")).rows[0].doc,
+  null,
+);
 const initial = doc;
 doc.era.description = "관리자 편집 테스트";
 const save = async (doc, publish) =>
@@ -72,6 +76,12 @@ assert.equal(
 );
 doc = await save(doc, true);
 assert.equal(doc.era.status, "published");
+await db.exec("reset role;set role anon");
+const publicDoc = (await db.query("select public.era_public_catalog() as doc"))
+  .rows[0].doc;
+assert.equal(publicDoc.era.status, "published");
+assert.equal(publicDoc.objectives.length, 10);
+assert.equal(publicDoc.outcomes.length, 5);
 await role(user);
 assert.equal((await db.query("select * from era_templates")).rows.length, 1);
 assert.equal(

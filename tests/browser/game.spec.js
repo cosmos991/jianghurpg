@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures.js";
 
 const readState = (page) =>
   page.evaluate(() => JSON.parse(localStorage.getItem("jianghu-fate-v1")));

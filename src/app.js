@@ -1,3 +1,4 @@
+import { mountEra } from "./era-ui.js";
 import { mountLongTraining } from "./long-training-ui.js";
 import { ensureCalendar, formatDate, dispatchDueEvent } from "./game/time.js";
 import {
@@ -1297,6 +1298,7 @@ function renderWorld() {
   });
   progression.render();
   longTraining.render();
+  era.render();
   $("#world-log-entries").innerHTML = j.log
     .map(
       (l) =>
@@ -1638,6 +1640,14 @@ const longTraining = mountLongTraining({
   addLog,
   syncMartial,
   notify,
+});
+
+const era = mountEra({
+  state,
+  persist,
+  getSoundEnabled: () => soundEnabled,
+  toggleSound: () => $("#sound").click(),
+  onSound: () => tone(110, 0.8, 0.04),
 });
 
 if (
