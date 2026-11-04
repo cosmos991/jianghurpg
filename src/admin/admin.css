@@ -1096,3 +1096,127 @@ dialog::backdrop {
     font-size: 14px;
   }
 }
+
+.era-draw-lab {
+  margin-bottom: 26px;
+}
+.era-draw-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.era-draw-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+.era-draw-actions button {
+  min-height: 48px;
+}
+.era-draw-result {
+  border: 1px solid #6f6748;
+  background: #102019;
+  padding: 22px;
+  margin-top: 20px;
+}
+.era-draw-result h3 {
+  font: 600 25px/1.5 "Noto Serif KR";
+  color: var(--gold);
+  margin: 8px 0 14px;
+}
+.era-draw-result p,
+#draw-era-batch-summary,
+#draw-era-status {
+  overflow-wrap: anywhere;
+}
+#draw-era-odds,
+#draw-era-replay-key {
+  color: #c6d2bd;
+  font-size: 13px;
+}
+.era-draw-result details {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin-top: 16px;
+}
+.era-draw-result summary {
+  cursor: pointer;
+  min-height: 44px;
+}
+.era-draw-result li {
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}
+#draw-era-outcomes {
+  white-space: pre-line;
+  line-height: 1.9;
+}
+#draw-era-distribution {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+.draw-distribution-type {
+  padding: 16px;
+  background: #102019;
+  border: 1px solid var(--border);
+}
+.draw-distribution-type h3 {
+  font-size: 15px;
+  color: var(--gold);
+}
+.draw-distribution-type p {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+.draw-distribution-type meter {
+  width: 100%;
+  height: 14px;
+  accent-color: var(--gold);
+}
+@media (max-width: 760px) {
+  .era-draw-controls,
+  #draw-era-distribution {
+    grid-template-columns: 1fr;
+  }
+  .era-draw-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .era-draw-actions button {
+    width: 100%;
+    font-size: 16px;
+  }
+  .era-draw-result {
+    padding: 16px;
+  }
+  .era-draw-lab .section-description,
+  #draw-era-status,
+  .era-draw-result p,
+  .era-draw-result li,
+  .draw-distribution-type p {
+    font-size: 14px;
+  }
+}
+
+.editor-content {
+  min-width: 0;
+}
+.era-draw-controls > label {
+  min-width: 0;
+}
+@media (max-width: 760px) {
+  .editor-sidebar nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .editor-sidebar nav a {
+    white-space: normal;
+  }
+  .era-draw-controls input,
+  .era-draw-controls select {
+    min-width: 0;
+  }
+}

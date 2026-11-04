@@ -210,3 +210,61 @@ test("failed saves retain inputs and deleting a required task removes its refere
   );
   expect(api.data.outcomes[1].required_objective_ids).toEqual([]);
 });
+
+for (const width of [1280, 390])
+  test(
+    "era draw lab replay, type restriction and batch without database writes at " +
+      width,
+    async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      const api = await backend(page),
+        errors = [];
+      page.on("pageerror", (e) => errors.push(e.message));
+      await login(page);
+      await expect(page.locator("#catalog-form")).toBeVisible();
+      await page.locator("#draw-era-seed").fill("강호-001");
+      await page.locator("#draw-era-once").click();
+      await expect(page.locator("#draw-era-result")).toBeVisible();
+      const first = await page.locator("#draw-era-result").innerText();
+      await page.locator("#draw-era-once").click();
+      // History is deliberately cumulative; compare the actual selected template.
+      const name = await page.locator("#draw-era-name").innerText();
+      expect(first).toContain(name);
+      await expect(page.locator("#draw-era-odds")).toContainText("16.7%");
+      await page.locator("#draw-era-type").selectOption("manual");
+      await page.locator("#draw-era-once").click();
+      await expect(page.locator("#draw-era-meta")).toContainText("비급의 행방");
+      await expect(page.locator("#draw-era-odds")).toContainText("최종 50.0%");
+      await page.locator("#draw-era-batch").click();
+      await expect(page.locator("#draw-era-batch-summary")).toContainText(
+        "총 1000회",
+      );
+      expect(
+        await page
+          .locator("#draw-era-distribution meter")
+          .evaluateAll((els) => els.reduce((s, e) => s + e.value, 0)),
+      ).toBe(1000);
+      await expect(page.locator("#draw-era-distribution meter")).toHaveCount(2);
+      await page.locator("#draw-era-new").click();
+      expect(await page.locator("#draw-era-seed").inputValue()).not.toBe(
+        "강호-001",
+      );
+      await expect(page.locator("#draw-era-meta")).toContainText("비급의 행방");
+      await page.locator("#draw-era-seed").fill("");
+      await page.locator("#draw-era-once").click();
+      await expect(page.locator("#draw-era-status")).toContainText("1~128자");
+      await expect(page.locator("#dirty-status")).toHaveText(
+        "저장된 상태입니다",
+      );
+      expect(api.calls).toBe(0);
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      await page
+        .locator("#era-draw-section")
+        .screenshot({ path: "/tmp/era-draw-" + width + ".png" });
+      expect(errors).toEqual([]);
+    },
+  );

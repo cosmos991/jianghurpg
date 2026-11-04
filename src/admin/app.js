@@ -1,3 +1,4 @@
+import { mountEraDraw } from "./era-draw-ui.js";
 import { createClient } from "@supabase/supabase-js";
 import {
   conditions,
@@ -539,3 +540,5 @@ if (!client) {
     else sessionChanged(data.session);
   });
 }
+
+mountEraDraw();
