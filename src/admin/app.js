@@ -1,3 +1,4 @@
+import { mountEraEventTest } from "./era-event-ui.js";
 import { mountEraDraw } from "./era-draw-ui.js";
 import { createClient } from "@supabase/supabase-js";
 import {
@@ -542,3 +543,5 @@ if (!client) {
 }
 
 mountEraDraw();
+
+mountEraEventTest();

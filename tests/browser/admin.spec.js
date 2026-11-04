@@ -268,3 +268,68 @@ for (const width of [1280, 390])
       expect(errors).toEqual([]);
     },
   );
+
+for (const width of [1280, 390])
+  test(
+    "short event sandbox gates choices, interrupts days and updates era tasks at " +
+      width,
+    async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      const api = await backend(page),
+        errors = [];
+      page.on("pageerror", (e) => errors.push(e.message));
+      await login(page);
+      await expect(page.locator("#catalog-form")).toBeVisible();
+      await page.locator("#event-test-start").click();
+      await expect(page.locator("#event-test-seed")).toBeDisabled();
+      for (
+        let i = 0;
+        i < 10 && !(await page.locator("#event-test-encounter").isVisible());
+        i++
+      )
+        await page.locator('[data-event-days="7"]').click();
+      await expect(page.locator("#event-test-encounter")).toBeVisible();
+      await expect(page.locator('[data-event-days="1"]')).toBeDisabled();
+      expect(
+        await page.locator("#event-test-choices button:disabled").count(),
+      ).toBeGreaterThan(0);
+      await expect(page.locator('[data-event-choice="leave"]')).toBeEnabled();
+      const title = await page.locator("#event-test-title").innerText(),
+        day = await page.locator("#event-test-day").innerText();
+      await page
+        .locator("#era-event-section")
+        .screenshot({ path: "/tmp/era-event-" + width + ".png" });
+      await page.locator('[data-event-choice="leave"]').click();
+      await expect(page.locator("#event-test-encounter")).not.toBeVisible();
+      await expect(page.locator('[data-event-days="1"]')).toBeEnabled();
+      await expect(page.locator("#event-test-score")).toHaveText("0 / 100점");
+      await page.locator("#event-test-reset").click();
+      await page.locator('[data-event-preset="strong"]').click();
+      await page.locator("#event-test-start").click();
+      for (
+        let i = 0;
+        i < 10 && !(await page.locator("#event-test-encounter").isVisible());
+        i++
+      )
+        await page.locator('[data-event-days="7"]').click();
+      await expect(page.locator("#event-test-title")).toHaveText(title);
+      await expect(page.locator("#event-test-day")).toHaveText(day);
+      await page.locator("#event-test-choices button:enabled").first().click();
+      await expect(page.locator("#event-test-result")).toBeVisible();
+      const score = Number(
+        (await page.locator("#event-test-score").innerText()).split(" /")[0],
+      );
+      expect(score).toBeGreaterThan(0);
+      expect(score).toBeLessThanOrEqual(25);
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      expect(api.calls).toBe(0);
+      await expect(page.locator("#dirty-status")).toHaveText(
+        "저장된 상태입니다",
+      );
+      expect(errors).toEqual([]);
+    },
+  );

@@ -109,9 +109,10 @@
             </div>
             <nav aria-label="편집 항목">
               <a href="#era-draw-section">00 <span>시대 추첨 테스트</span></a
-              ><a href="#era-section">01 <span>시대의 배경</span></a
-              ><a href="#objectives-section">02 <span>과제와 점수</span></a
-              ><a href="#outcomes-section">03 <span>결과와 보상</span></a>
+              ><a href="#era-event-section">01 <span>짧은 사건 테스트</span></a
+              ><a href="#era-section">02 <span>시대의 배경</span></a
+              ><a href="#objectives-section">03 <span>과제와 점수</span></a
+              ><a href="#outcomes-section">04 <span>결과와 보상</span></a>
             </nav>
             <div class="sidebar-guide">
               <strong>초안과 적용</strong>
@@ -190,6 +191,174 @@
                 <h3>추첨 분포</h3>
                 <p id="draw-era-batch-summary"></p>
                 <div id="draw-era-distribution"></div>
+              </div>
+            </section>
+            <section id="era-event-section" class="editor-card">
+              <div class="section-heading">
+                <div>
+                  <span class="eyebrow">STEP 02 · A DAY IN JIANGHU</span>
+                  <h2>짧은 사건 테스트</h2>
+                </div>
+                <span class="status-badge">미리보기</span>
+              </div>
+              <p class="section-description">
+                시대 시작 → 수련·기연 → 가끔 사건 → 선택 한 번 → 과제에 반영.
+                실제 캐릭터와 Supabase 설정에는 영향을 주지 않는 테스트입니다.
+              </p>
+              <fieldset id="event-test-setup">
+                <legend>시작 설정</legend>
+                <div class="era-draw-controls">
+                  <label
+                    >시드값<input
+                      id="event-test-seed"
+                      value="event-001"
+                      maxlength="128"
+                      autocomplete="off" /></label
+                  ><label
+                    >시대 유형<select id="event-test-type">
+                      <option value="demonic">마교의 준동</option>
+                      <option value="manual">비급의 행방</option>
+                      <option value="schism">정파의 분열</option>
+                    </select></label
+                  >
+                </div>
+                <div class="era-draw-actions">
+                  <button
+                    type="button"
+                    class="secondary"
+                    data-event-preset="weak"
+                  >
+                    약한 인물</button
+                  ><button
+                    type="button"
+                    class="secondary"
+                    data-event-preset="balanced"
+                  >
+                    성장한 인물</button
+                  ><button
+                    type="button"
+                    class="secondary"
+                    data-event-preset="strong"
+                  >
+                    강한 인물
+                  </button>
+                </div>
+                <div class="event-stat-inputs">
+                  <label
+                    >무력<input
+                      id="event-stat-force"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value="15" /></label
+                  ><label
+                    >지혜<input
+                      id="event-stat-wisdom"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value="15" /></label
+                  ><label
+                    >처세<input
+                      id="event-stat-speech"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value="15" /></label
+                  ><label
+                    >내공<input
+                      id="event-stat-inner"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value="10" /></label
+                  ><label
+                    >마도<input
+                      id="event-stat-demonic"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value="0"
+                  /></label>
+                </div>
+              </fieldset>
+              <div class="era-draw-actions">
+                <button id="event-test-start" type="button" class="primary">
+                  이 설정으로 시대 시작</button
+                ><button
+                  id="event-test-reset"
+                  type="button"
+                  class="secondary"
+                  hidden
+                >
+                  설정으로 돌아가기 · 진행 초기화
+                </button>
+              </div>
+              <p id="event-test-rule" class="field-help"></p>
+              <p id="event-test-status" role="status" aria-live="polite"></p>
+              <div id="event-test-play" hidden>
+                <div class="event-world">
+                  <h3 id="event-test-era"></h3>
+                  <p id="event-test-day"></p>
+                  <div id="event-test-stats" class="event-stat-chips"></div>
+                  <p id="event-test-resources"></p>
+                </div>
+                <div class="event-activity">
+                  <label
+                    >오늘의 활동<select id="event-test-activity">
+                      <option value="martial">
+                        무공 수련 · 무력 +2 / 내공 +1
+                      </option>
+                      <option value="study">
+                        독서와 교류 · 지혜 +2 / 처세 +1
+                      </option>
+                      <option value="fortune">
+                        기연 탐색 · 25% 확률로 내공 +4
+                      </option>
+                    </select></label
+                  >
+                  <div class="era-draw-actions">
+                    <button type="button" class="primary" data-event-days="1">
+                      하루 진행</button
+                    ><button
+                      type="button"
+                      class="secondary"
+                      data-event-days="7"
+                    >
+                      7일 진행 · 사건 시 멈춤
+                    </button>
+                  </div>
+                </div>
+                <article
+                  id="event-test-encounter"
+                  class="event-encounter"
+                  hidden
+                >
+                  <span class="eyebrow">강호에서 마주친 일</span>
+                  <h3 id="event-test-title" tabindex="-1"></h3>
+                  <p id="event-test-body"></p>
+                  <div id="event-test-choices"></div>
+                  <p class="field-help">
+                    과제 점수는 0~25점 안에서 반영됩니다. 부족한 능력치와 은전은
+                    선택지에 표시됩니다.
+                  </p>
+                </article>
+                <p
+                  id="event-test-result"
+                  class="event-result"
+                  tabindex="-1"
+                  hidden
+                ></p>
+                <div class="event-score-heading">
+                  <h3>시대 성과</h3>
+                  <strong id="event-test-score"></strong>
+                </div>
+                <div id="event-test-progress"></div>
+                <p id="event-test-rank"></p>
+                <details class="event-log">
+                  <summary>최근 기록 20개</summary>
+                  <ol id="event-test-log"></ol>
+                </details>
               </div>
             </section>
             <form id="catalog-form" hidden novalidate>
