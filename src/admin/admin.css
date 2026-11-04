@@ -1398,3 +1398,42 @@ dialog::backdrop {
     padding: 14px;
   }
 }
+
+.event-phase-label {
+  display: block;
+  margin: 12px 0;
+  color: #f0d59d;
+  font-size: 15px;
+}
+.event-phase-test {
+  border-block: 1px solid var(--border);
+  margin: 22px 0;
+  padding: 16px 0;
+}
+.event-phase-test h3 {
+  margin-top: 0;
+  font-size: 16px;
+}
+.event-phase-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.event-phase-buttons button {
+  min-height: 48px;
+  padding: 10px 6px;
+}
+.event-phase-buttons button[aria-pressed="true"] {
+  background: #554c2f;
+  color: #fff0c6;
+  border-color: var(--gold);
+}
+@media (max-width: 760px) {
+  .event-phase-buttons {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .event-phase-buttons button {
+    font-size: 15px;
+  }
+}

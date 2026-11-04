@@ -333,3 +333,56 @@ for (const width of [1280, 390])
       expect(errors).toEqual([]);
     },
   );
+
+for (const width of [1280, 390])
+  test(
+    "phase comparison changes encounters and gates without granting growth at " +
+      width,
+    async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      const api = await backend(page),
+        errors = [];
+      page.on("pageerror", (e) => errors.push(e.message));
+      await login(page);
+      await expect(page.locator("#catalog-form")).toBeVisible();
+      await page.locator('[data-event-preset="strong"]').click();
+      await page.locator("#event-test-start").click();
+      const stats = await page
+        .locator("#event-test-stats span")
+        .allTextContents();
+      const money = await page.locator("#event-test-resources").innerText();
+      await page.locator('[data-event-stage="early"]').click();
+      const early = await page.locator("#event-test-title").innerText();
+      const easyLocked = await page
+        .locator("#event-test-choices button:disabled")
+        .count();
+      await page.locator('[data-event-stage="middle"]').click();
+      await expect(page.locator("#event-test-phase")).toContainText("35~60");
+      expect(await page.locator("#event-test-title").innerText()).not.toBe(
+        early,
+      );
+      await page.locator('[data-event-stage="late"]').click();
+      await expect(page.locator("#event-test-phase")).toContainText("65~90");
+      await expect(page.locator("#event-test-day")).toContainText("13년");
+      expect(
+        await page.locator("#event-test-choices button:disabled").count(),
+      ).toBeGreaterThan(easyLocked);
+      await expect(page.locator("#event-test-stats span")).toHaveText(stats);
+      await expect(page.locator("#event-test-resources")).toHaveText(money);
+      await expect(page.locator("#event-test-score")).toHaveText("0 / 100점");
+      await expect(page.locator('[data-event-choice="support"]')).toBeEnabled();
+      await page
+        .locator("#event-test-encounter")
+        .screenshot({ path: "/tmp/era-event-late-" + width + ".png" });
+      await page.locator('[data-event-choice="support"]').click();
+      await expect(page.locator("#event-test-score")).toHaveText("1 / 100점");
+      await expect(page.locator("#event-test-result")).toContainText("+1점");
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      expect(api.calls).toBe(0);
+      expect(errors).toEqual([]);
+    },
+  );

@@ -300,8 +300,44 @@
                 <div class="event-world">
                   <h3 id="event-test-era"></h3>
                   <p id="event-test-day"></p>
+                  <strong
+                    id="event-test-phase"
+                    class="event-phase-label"
+                  ></strong>
                   <div id="event-test-stats" class="event-stat-chips"></div>
                   <p id="event-test-resources"></p>
+                </div>
+                <div class="event-phase-test">
+                  <h3>같은 능력치로 시기 비교</h3>
+                  <div class="event-phase-buttons">
+                    <button
+                      type="button"
+                      class="secondary"
+                      data-event-stage="early"
+                      aria-pressed="true"
+                    >
+                      초반 · 1~5년</button
+                    ><button
+                      type="button"
+                      class="secondary"
+                      data-event-stage="middle"
+                      aria-pressed="false"
+                    >
+                      중반 · 6~12년</button
+                    ><button
+                      type="button"
+                      class="secondary"
+                      data-event-stage="late"
+                      aria-pressed="false"
+                    >
+                      후반 · 13~20년
+                    </button>
+                  </div>
+                  <p class="field-help">
+                    테스트 전용 이동입니다. 진행 중인 사건을 해당 시기의 비교
+                    사건으로 교체합니다. 능력치·은전·성과는 유지하며, 건너뛴
+                    날의 성장·보상은 받지 않습니다.
+                  </p>
                 </div>
                 <div class="event-activity">
                   <label
@@ -334,7 +370,9 @@
                   class="event-encounter"
                   hidden
                 >
-                  <span class="eyebrow">강호에서 마주친 일</span>
+                  <span id="event-test-kind" class="eyebrow"
+                    >강호에서 마주친 일</span
+                  >
                   <h3 id="event-test-title" tabindex="-1"></h3>
                   <p id="event-test-body"></p>
                   <div id="event-test-choices"></div>

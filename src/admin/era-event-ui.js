@@ -6,8 +6,9 @@ import {
   eventScore,
   testEnded,
   EVENT_RULES,
+  jumpTestStage,
 } from "../game/era-event-test.js";
-import { eraEvents, eventStatNames } from "../game/era-events.js";
+import { eraEvents, eventStatNames, eraStage } from "../game/era-events.js";
 
 export function mountEraEventTest() {
   const $ = (s) => document.querySelector(s);
@@ -36,8 +37,25 @@ export function mountEraEventTest() {
       ended = testEnded(state);
     $("#event-test-era").textContent =
       state.draw.type.name + " · " + catalog.era.name;
+    const stage = eraStage(state.day);
+    $("#event-test-phase").textContent =
+      stage.name + " · " + stage.years + " · 주요 선택 능력치 " + stage.range;
+    document
+      .querySelectorAll("[data-event-stage]")
+      .forEach((button) =>
+        button.setAttribute(
+          "aria-pressed",
+          String(button.dataset.eventStage === stage.id),
+        ),
+      );
     $("#event-test-day").textContent =
-      state.day + "일 경과 · 사건 " + state.encounters + "회";
+      "강호력 " +
+      Math.min(20, Math.floor(state.day / 360) + 1) +
+      "년 · " +
+      state.day +
+      "일 경과 · 사건 " +
+      state.encounters +
+      "회";
     $("#event-test-resources").textContent =
       "은전 " + state.money + " · 타락 " + state.corruption + " / 100";
     const stats = $("#event-test-stats");
@@ -79,6 +97,10 @@ export function mountEraEventTest() {
     if (state.pending) {
       const current = eraEvents.find((e) => e.id === state.pending.id),
         token = state.pending.token;
+      $("#event-test-kind").textContent =
+        (state.pending.preview
+          ? "시기 비교용 사건 · "
+          : "강호에서 마주친 일 · ") + stage.name;
       $("#event-test-title").textContent = current.title;
       $("#event-test-body").textContent = current.body;
       const choices = $("#event-test-choices");
@@ -208,13 +230,28 @@ export function mountEraEventTest() {
         }
       }),
   );
+  document.querySelectorAll("[data-event-stage]").forEach(
+    (button) =>
+      (button.onclick = () => {
+        if (!state) return;
+        jumpTestStage(state, button.dataset.eventStage);
+        render();
+        $("#event-test-status").textContent =
+          "시기 비교: 능력치·은전·성과를 유지하고 사건을 교체했습니다. 이동에 따른 성장이나 보상은 없습니다.";
+        $("#event-test-encounter").scrollIntoView({
+          block: "nearest",
+          behavior: "instant",
+        });
+        $("#event-test-title").focus({ preventScroll: true });
+      }),
+  );
   $("#event-test-rule").textContent =
-    "시대별 사건 8종 · 총 " +
+    "시대·시기별 사건 8종 · 총 " +
     eraEvents.length +
     "종. 사건 다음 날은 쉬고, 이후 매일 " +
     Math.round(EVENT_RULES.chance * 100) +
     "%로 추첨합니다. 최근 " +
     EVENT_RULES.recentCount +
-    "개 사건은 제외합니다. 과제별 0~25점으로 제한되며 선택은 한 번만 처리됩니다.";
+    "개 사건은 제외합니다. 후반일수록 주요 선택의 요구치와 기여가 커지며, 작은 기여는 조건 없이 가능합니다.";
   render();
 }

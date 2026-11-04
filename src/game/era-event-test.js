@@ -1,8 +1,13 @@
 import { drawEra, seededRandom } from "./era-draw.js";
-import { eraEvents, eventStatNames } from "./era-events.js";
+import {
+  eraEvents,
+  eventStatNames,
+  eraStages,
+  eraStage,
+} from "./era-events.js";
 
 export const EVENT_RULES = {
-  version: 1,
+  version: 2,
   chance: 0.35,
   minGap: 2,
   recentCount: 4,
@@ -24,10 +29,11 @@ export function startEventTest({ seed, typeId = "demonic", stats }) {
   )
     throw Error("능력치는 0~100의 정수로 입력해주세요.");
   return {
-    version: 1,
+    version: 2,
     draw,
     stats: { ...values },
     day: 0,
+    jumpRevision: 0,
     money: 20,
     corruption: 0,
     progress: [0, 0, 0, 0],
@@ -92,19 +98,65 @@ export function advanceTestDay(state, activity) {
   )
     return;
   const candidates = eraEvents.filter(
-    (e) => e.type === state.draw.type.id && !state.recent.includes(e.id),
+    (e) =>
+      e.type === state.draw.type.id &&
+      e.stage === eraStage(state.day).id &&
+      !state.recent.includes(e.id),
   );
   const pick = seededRandom(
     "event-test-v1:" + state.draw.seed + ":" + state.day + ":pick",
   )();
   const selected = candidates[Math.floor(pick * candidates.length)];
   if (!selected) return;
-  state.pending = { id: selected.id, token: state.day + ":" + selected.id };
+  state.pending = {
+    id: selected.id,
+    token: state.jumpRevision + ":" + state.day + ":" + selected.id,
+  };
   state.lastEventDay = state.day;
   state.recent.unshift(selected.id);
   state.recent.splice(EVENT_RULES.recentCount);
   state.encounters++;
   log(state, state.day + "일 · 사건 발생: " + selected.title);
+}
+// Sandbox-only shortcut: replace a scene for comparison, without simulating
+// intervening days, training or rewards. Revision prevents stale choices replaying.
+export function jumpTestStage(state, stageId) {
+  const stage = eraStages.find((s) => s.id === stageId);
+  if (!stage) throw Error("비교할 시기를 선택해주세요.");
+  const current = eraEvents.find((e) => e.id === state.pending?.id);
+  const family =
+    current?.sceneId ||
+    state.compareSceneId ||
+    eraEvents.find((e) => e.type === state.draw.type.id).sceneId;
+  const event = eraEvents.find(
+    (e) =>
+      e.type === state.draw.type.id &&
+      e.stage === stage.id &&
+      e.sceneId === family,
+  );
+  state.day = stage.startDay;
+  state.jumpRevision++;
+  state.compareSceneId = family;
+  state.pending = {
+    id: event.id,
+    token: "preview:" + state.jumpRevision + ":" + event.id,
+    preview: true,
+  };
+  state.recent = [event.id];
+  state.lastEventDay = state.day;
+  state.lastResult = null;
+  state.encounters++;
+  log(
+    state,
+    "시기 비교 · " +
+      stage.name +
+      " " +
+      stage.years +
+      " · " +
+      event.title +
+      " (성장·보상 없이 이동)",
+  );
+  return event;
 }
 export function advanceTestDays(state, activity, days = 1) {
   if (![1, 7].includes(days))
