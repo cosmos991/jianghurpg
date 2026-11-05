@@ -1437,3 +1437,33 @@ dialog::backdrop {
     font-size: 15px;
   }
 }
+
+.sect-test-select {
+  margin: 16px 0;
+}
+.sect-test-panel {
+  border: 1px solid #9a8053;
+  background: #232e20;
+  padding: 20px;
+  margin: 22px 0;
+}
+.sect-test-panel h3 {
+  font: 600 24px/1.5 "Noto Serif KR";
+  color: var(--gold);
+  margin: 10px 0;
+}
+.sect-test-panel p {
+  line-height: 1.9;
+}
+.sect-test-panel summary {
+  min-height: 44px;
+  cursor: pointer;
+}
+#sect-test-promotion {
+  color: #eddcb3;
+}
+@media (max-width: 760px) {
+  .sect-test-panel {
+    padding: 16px 12px;
+  }
+}

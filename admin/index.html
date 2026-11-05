@@ -243,6 +243,14 @@
                     강한 인물
                   </button>
                 </div>
+                <label class="sect-test-select"
+                  >소속 문파<select id="event-test-sect">
+                    <option value="">무소속 · 기존 사건 테스트</option>
+                    <option value="huashan">화산 · 무력 수련 지원</option>
+                    <option value="wudang">무당 · 내공 수련 지원</option>
+                    <option value="shaolin">소림 · 내공 수련 지원</option>
+                  </select></label
+                >
                 <div class="event-stat-inputs">
                   <label
                     >무력<input
@@ -339,6 +347,44 @@
                     날의 성장·보상은 받지 않습니다.
                   </p>
                 </div>
+                <section id="sect-test-panel" class="sect-test-panel" hidden>
+                  <span class="eyebrow">문파 안에서의 성장</span>
+                  <h3 id="sect-test-name"></h3>
+                  <p id="sect-test-standing"></p>
+                  <p id="sect-test-relation"></p>
+                  <p id="sect-test-bonus"></p>
+                  <p id="sect-test-promotion"></p>
+                  <div class="era-draw-actions">
+                    <button
+                      id="sect-test-promote"
+                      type="button"
+                      class="primary"
+                    >
+                      제자 승급</button
+                    ><button
+                      id="sect-test-mission"
+                      type="button"
+                      class="secondary"
+                    >
+                      특수 임무 받기
+                    </button>
+                  </div>
+                  <p id="sect-test-mission-help" class="field-help"></p>
+                  <details>
+                    <summary>등급과 승급 기준</summary>
+                    <p>
+                      외문 → 내문: 무공 수련 8일, 공헌 12, 문파 주 능력치 30,
+                      신임 15.<br />내문 → 핵심: 무공 수련 20일, 공헌 40, 문파
+                      주 능력치 55, 신임 35.
+                    </p>
+                    <p>
+                      특수 임무는 실제 활동 3일 간격이며 일반 사건 사이에도
+                      끼어듭니다. 적대 관계면 교섭 요구치가 오르고, 우호 관계면
+                      낮아집니다. 시기 이동은 수련·공헌·임무 대기 일수를
+                      올려주지 않습니다.
+                    </p>
+                  </details>
+                </section>
                 <div class="event-activity">
                   <label
                     >오늘의 활동<select id="event-test-activity">

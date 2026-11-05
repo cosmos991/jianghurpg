@@ -386,3 +386,80 @@ for (const width of [1280, 390])
       expect(errors).toEqual([]);
     },
   );
+
+for (const width of [1280, 390])
+  test(
+    "sect mission changes era progress and diplomacy; promotion is earned at " +
+      width,
+    async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      const api = await backend(page),
+        errors = [];
+      page.on("pageerror", (e) => errors.push(e.message));
+      await login(page);
+      await expect(page.locator("#catalog-form")).toBeVisible();
+      await page.locator("#event-test-sect").selectOption("huashan");
+      await page.locator("#event-test-type").selectOption("schism");
+      await page.locator('[data-event-preset="strong"]').click();
+      await page.locator("#event-test-start").click();
+      await expect(page.locator("#sect-test-name")).toHaveText(
+        "화산 · 외문제자",
+      );
+      await expect(page.locator("#sect-test-promote")).toBeDisabled();
+      await page.locator("#sect-test-mission").click();
+      await expect(page.locator("#event-test-kind")).toContainText(
+        "문파 특수 임무",
+      );
+      await page.locator('[data-event-choice="cooperate"]').click();
+      await expect(page.locator("#event-test-score")).toHaveText("6 / 100점");
+      await expect(page.locator("#sect-test-standing")).toContainText("공헌 6");
+      await expect(page.locator("#sect-test-relation")).toContainText("+12");
+      await expect(page.locator("#sect-test-mission")).toBeDisabled();
+      for (
+        let i = 0;
+        i < 40 && !(await page.locator("#sect-test-promote").isEnabled());
+        i++
+      ) {
+        if (await page.locator("#event-test-encounter").isVisible()) {
+          if (
+            await page
+              .locator('[data-event-choice="cooperate"]:enabled')
+              .count()
+          )
+            await page.locator('[data-event-choice="cooperate"]').click();
+          else if (
+            await page.locator('[data-event-choice="support"]:enabled').count()
+          )
+            await page.locator('[data-event-choice="support"]').click();
+          else await page.locator('[data-event-choice="leave"]').click();
+        }
+        if (await page.locator("#sect-test-promote").isEnabled()) break;
+        if (await page.locator("#sect-test-mission").isEnabled())
+          await page.locator("#sect-test-mission").click();
+        else await page.locator('[data-event-days="1"]').click();
+      }
+      if (await page.locator("#event-test-encounter").isVisible()) {
+        const cooperative = page.locator(
+          '[data-event-choice="cooperate"]:enabled',
+        );
+        if (await cooperative.count()) await cooperative.click();
+        else await page.locator('[data-event-choice="support"]').click();
+      }
+      await expect(page.locator("#sect-test-promote")).toBeEnabled();
+      await page.locator("#sect-test-promote").click();
+      await expect(page.locator("#sect-test-name")).toHaveText(
+        "화산 · 내문제자",
+      );
+      await expect(page.locator("#sect-test-bonus")).toContainText("3일마다");
+      await page
+        .locator("#sect-test-panel")
+        .screenshot({ path: "/tmp/sect-test-" + width + ".png" });
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      expect(api.calls).toBe(0);
+      expect(errors).toEqual([]);
+    },
+  );

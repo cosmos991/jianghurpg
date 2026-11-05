@@ -1,3 +1,10 @@
+import {
+  createTestSect,
+  trainTestSect,
+  missionReady,
+  requestSectMission,
+  applySectMission,
+} from "./sect-test.js";
 import { drawEra, seededRandom } from "./era-draw.js";
 import {
   eraEvents,
@@ -12,7 +19,12 @@ export const EVENT_RULES = {
   minGap: 2,
   recentCount: 4,
 };
-export function startEventTest({ seed, typeId = "demonic", stats }) {
+export function startEventTest({
+  seed,
+  typeId = "demonic",
+  stats,
+  sectId = null,
+}) {
   const draw = drawEra({ seed, typeId });
   const values = stats || {
     force: 15,
@@ -31,6 +43,7 @@ export function startEventTest({ seed, typeId = "demonic", stats }) {
   return {
     version: 2,
     draw,
+    sect: createTestSect(sectId),
     stats: { ...values },
     day: 0,
     jumpRevision: 0,
@@ -88,6 +101,7 @@ export function advanceTestDay(state, activity) {
         ? "기연 탐색 · 오래된 구결 발견, 내공 +" + gain("inner", 4)
         : "기연 탐색 · 오늘은 특별한 발견이 없었다.";
   }
+  message += trainTestSect(state, activity);
   log(state, state.day + "일 · " + message);
   const roll = seededRandom(
     "event-test-v1:" + state.draw.seed + ":" + state.day + ":arrival",
@@ -97,6 +111,14 @@ export function advanceTestDay(state, activity) {
     roll >= EVENT_RULES.chance
   )
     return;
+  if (
+    missionReady(state) &&
+    seededRandom("sect-mission-v1:" + state.draw.seed + ":" + state.day)() < 0.4
+  ) {
+    const mission = requestSectMission(state);
+    log(state, state.day + "일 · 문파 특수 임무: " + mission.title);
+    return;
+  }
   const candidates = eraEvents.filter(
     (e) =>
       e.type === state.draw.type.id &&
@@ -123,7 +145,7 @@ export function advanceTestDay(state, activity) {
 export function jumpTestStage(state, stageId) {
   const stage = eraStages.find((s) => s.id === stageId);
   if (!stage) throw Error("비교할 시기를 선택해주세요.");
-  const current = eraEvents.find((e) => e.id === state.pending?.id);
+  const current = getTestEvent(state);
   const family =
     current?.sceneId ||
     state.compareSceneId ||
@@ -189,7 +211,7 @@ export function choiceAvailability(state, choice) {
 export function resolveTestEvent(state, token, choiceId) {
   if (!state.pending || state.pending.token !== token)
     throw Error("이미 끝났거나 현재 사건이 아닙니다.");
-  const event = eraEvents.find((e) => e.id === state.pending.id);
+  const event = getTestEvent(state);
   const choice = event.choices.find((c) => c.id === choiceId);
   if (!choice) throw Error("선택지를 확인해주세요.");
   const allowed = choiceAvailability(state, choice);
@@ -205,7 +227,7 @@ export function resolveTestEvent(state, token, choiceId) {
   state.corruption = Math.min(100, state.corruption + effects.dark);
   const delta = state.progress[effects.slot] - old;
   const objective = state.draw.template.catalog.objectives[effects.slot];
-  const summary =
+  let summary =
     choice.id === "leave"
       ? "개입하지 않고 지나갔다."
       : objective.name +
@@ -217,8 +239,15 @@ export function resolveTestEvent(state, token, choiceId) {
           ? " · 은전 " + (effects.money > 0 ? "+" : "") + effects.money
           : "") +
         (effects.dark ? " · 마도·타락 +" + effects.dark : "");
+  if (event.mission) summary += applySectMission(state, choice);
   state.lastResult = { title: event.title, choice: choice.label, summary };
   log(state, state.day + "일 · " + choice.label + " → " + summary);
   state.pending = null;
   return state.lastResult;
+}
+
+export function getTestEvent(state) {
+  return (
+    state.pending?.event || eraEvents.find((e) => e.id === state.pending?.id)
+  );
 }

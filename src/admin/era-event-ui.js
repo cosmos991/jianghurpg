@@ -1,4 +1,12 @@
 import {
+  testSects,
+  discipleRanks,
+  sectPromotion,
+  promoteTestSect,
+  requestSectMission,
+  missionReady,
+} from "../game/sect-test.js";
+import {
   startEventTest,
   advanceTestDays,
   resolveTestEvent,
@@ -7,6 +15,7 @@ import {
   testEnded,
   EVENT_RULES,
   jumpTestStage,
+  getTestEvent,
 } from "../game/era-event-test.js";
 import { eraEvents, eventStatNames, eraStage } from "../game/era-events.js";
 
@@ -88,6 +97,57 @@ export function mountEraEventTest() {
       row.append(meter);
       tasks.append(row);
     });
+    $("#sect-test-panel").hidden = !state.sect;
+    if (state.sect) {
+      const sect = state.sect,
+        config = testSects[sect.id],
+        promotion = sectPromotion(state);
+      $("#sect-test-name").textContent =
+        config.name + " · " + discipleRanks[sect.rank].name;
+      $("#sect-test-standing").textContent =
+        "공헌 " +
+        sect.contribution +
+        " · 신임 " +
+        sect.trust +
+        "/100 · 문파 수련 " +
+        sect.practiceDays +
+        "일";
+      const relation =
+        sect.relation <= -30 ? "적대" : sect.relation >= 30 ? "우호" : "경계";
+      $("#sect-test-relation").textContent =
+        config.rival +
+        "과의 관계: " +
+        relation +
+        " (" +
+        signed(sect.relation) +
+        "/100)" +
+        (relation === "적대"
+          ? " · 교섭 요구치 +10"
+          : relation === "우호"
+            ? " · 교섭 요구치 −5"
+            : "");
+      $("#sect-test-bonus").textContent =
+        "무공 수련 " +
+        [4, 3, 2][sect.rank] +
+        "일마다 " +
+        config.bonus +
+        " +1 추가 · 승급해도 공헌은 유지";
+      $("#sect-test-promotion").textContent = promotion.max
+        ? "최고 제자 등급입니다."
+        : promotion.ready
+          ? promotion.next.name + " 승급 가능"
+          : "다음 승급: " + promotion.missing.join(" · ");
+      $("#sect-test-promote").disabled =
+        !promotion.ready || !!state.pending || ended;
+      $("#sect-test-mission").disabled = !missionReady(state);
+      $("#sect-test-mission-help").textContent = state.pending
+        ? "진행 중인 사건부터 마쳐주세요."
+        : missionReady(state)
+          ? "현재 등급의 특수 임무를 받을 수 있습니다."
+          : "다음 임무까지 활동 " +
+            Math.max(0, 3 - (sect.serviceDays - sect.lastMissionDay)) +
+            "일";
+    }
     $("#event-test-activity").disabled = !!state.pending || ended;
     document
       .querySelectorAll("[data-event-days]")
@@ -95,12 +155,14 @@ export function mountEraEventTest() {
     const card = $("#event-test-encounter");
     card.hidden = !state.pending;
     if (state.pending) {
-      const current = eraEvents.find((e) => e.id === state.pending.id),
+      const current = getTestEvent(state),
         token = state.pending.token;
       $("#event-test-kind").textContent =
-        (state.pending.preview
-          ? "시기 비교용 사건 · "
-          : "강호에서 마주친 일 · ") + stage.name;
+        (current.mission
+          ? "문파 특수 임무 · "
+          : state.pending.preview
+            ? "시기 비교용 사건 · "
+            : "강호에서 마주친 일 · ") + stage.name;
       $("#event-test-title").textContent = current.title;
       $("#event-test-body").textContent = current.body;
       const choices = $("#event-test-choices");
@@ -135,7 +197,20 @@ export function mountEraEventTest() {
                 "점" +
                 (effect.money ? " · 은전 " + signed(effect.money) : "") +
                 (effect.dark ? " · 마도·타락 +" + effect.dark : "");
-        b.append(node("small", preview));
+        b.append(
+          node(
+            "small",
+            preview +
+              (current.mission
+                ? " · 공헌 +" +
+                  effect.contribution +
+                  " · 신임 " +
+                  signed(effect.trust) +
+                  " · 문파 관계 " +
+                  signed(effect.relation)
+                : ""),
+          ),
+        );
         b.onclick = () => {
           try {
             resolveTestEvent(state, token, c.id);
@@ -188,6 +263,7 @@ export function mountEraEventTest() {
         seed: $("#event-test-seed").value,
         typeId: $("#event-test-type").value,
         stats,
+        sectId: $("#event-test-sect").value || null,
       });
       render();
       $("#event-test-status").textContent =
@@ -245,6 +321,31 @@ export function mountEraEventTest() {
         $("#event-test-title").focus({ preventScroll: true });
       }),
   );
+  $("#sect-test-promote").onclick = () => {
+    try {
+      const rank = promoteTestSect(state);
+      render();
+      $("#event-test-status").textContent =
+        rank + "로 승급했습니다. 수련 지원과 특수 임무가 바뀝니다.";
+    } catch (e) {
+      $("#event-test-status").textContent = e.message;
+    }
+  };
+  $("#sect-test-mission").onclick = () => {
+    try {
+      requestSectMission(state);
+      render();
+      $("#event-test-status").textContent =
+        "문파 특수 임무를 받았습니다. 선택 한 번으로 결과가 반영됩니다.";
+      $("#event-test-encounter").scrollIntoView({
+        block: "nearest",
+        behavior: "instant",
+      });
+      $("#event-test-title").focus({ preventScroll: true });
+    } catch (e) {
+      $("#event-test-status").textContent = e.message;
+    }
+  };
   $("#event-test-rule").textContent =
     "시대·시기별 사건 8종 · 총 " +
     eraEvents.length +
