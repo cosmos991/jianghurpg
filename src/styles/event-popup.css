@@ -1,0 +1,124 @@
+html.event-popup-open {
+  overflow: hidden;
+}
+dialog.event-popup {
+  width: min(680px, calc(100% - 32px));
+  max-width: none;
+  max-height: 90dvh;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #a6925f;
+  border-radius: 8px;
+  background: #17251d;
+  color: #f0eddd;
+  box-shadow: 0 30px 120px #000a;
+  text-align: left;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+dialog.event-popup::backdrop {
+  background: #020705cf;
+  backdrop-filter: blur(4px);
+}
+.event-popup-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #142219;
+  border-bottom: 1px solid #566047;
+  padding: 13px 20px;
+}
+.event-popup-header > span {
+  color: #dbc995;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+.event-popup-header button {
+  background: #253628;
+  color: #eee6ca;
+  border: 1px solid #96835b;
+  border-radius: 3px;
+  padding: 10px 14px;
+  min-height: 44px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.event-popup-header button:focus-visible,
+.event-popup-notice button:focus-visible {
+  outline: 2px solid #e8d493;
+  outline-offset: 3px;
+}
+dialog.event-popup .event-encounter,
+dialog.event-popup .road-event-panel {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 24px;
+  background: #1d2b20;
+  box-shadow: none;
+}
+dialog.event-popup h2,
+dialog.event-popup h3 {
+  color: #eddba7;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+dialog.event-popup p {
+  color: #d7dfcc;
+  line-height: 1.9;
+  font-size: 15px;
+}
+.event-popup-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #8e7d50;
+  background: #273321;
+  margin: 16px 0;
+  color: #e3ddbe;
+  font-size: 14px;
+}
+.event-popup-notice p {
+  flex: 1;
+  margin: 0;
+  min-width: 150px;
+}
+.event-popup-notice button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid #c3ac6d;
+  background: #d4bf84;
+  color: #16251a;
+  cursor: pointer;
+  font: inherit;
+}
+@media (max-width: 760px) {
+  dialog.event-popup {
+    width: calc(100% - 20px);
+    max-height: 94dvh;
+  }
+  .event-popup-header {
+    padding: 10px 14px;
+  }
+  dialog.event-popup .event-encounter,
+  dialog.event-popup .road-event-panel {
+    padding: 18px 14px;
+  }
+  dialog.event-popup .road-event-choices button {
+    min-height: 52px;
+  }
+  .event-popup-notice {
+    font-size: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog.event-popup::backdrop {
+    backdrop-filter: none;
+  }
+}

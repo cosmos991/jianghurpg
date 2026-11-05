@@ -12,6 +12,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/src/admin/admin.css" />
+    <link rel="stylesheet" href="/src/styles/event-popup.css" />
   </head>
   <body>
     <header>
@@ -411,22 +412,15 @@
                     </button>
                   </div>
                 </div>
-                <article
-                  id="event-test-encounter"
-                  class="event-encounter"
-                  hidden
-                >
-                  <span id="event-test-kind" class="eyebrow"
-                    >강호에서 마주친 일</span
-                  >
-                  <h3 id="event-test-title" tabindex="-1"></h3>
-                  <p id="event-test-body"></p>
-                  <div id="event-test-choices"></div>
-                  <p class="field-help">
-                    과제 점수는 0~25점 안에서 반영됩니다. 부족한 능력치와 은전은
-                    선택지에 표시됩니다.
+                <div id="event-test-notice" class="event-popup-notice" hidden>
+                  <p>
+                    선택을 기다리는 사건이 있습니다. 선택 전까지 시간은
+                    멈춥니다.
                   </p>
-                </article>
+                  <button id="event-test-reopen" type="button">
+                    사건 확인
+                  </button>
+                </div>
                 <p
                   id="event-test-result"
                   class="event-result"
@@ -560,6 +554,27 @@
         </div>
       </section>
     </main>
+    <dialog
+      id="event-test-dialog"
+      class="event-popup"
+      aria-labelledby="event-test-title"
+      aria-describedby="event-test-body"
+    >
+      <div class="event-popup-header">
+        <span>강호의 돌발 사건</span
+        ><button id="event-test-dismiss" type="button">잠시 닫기 ×</button>
+      </div>
+      <article id="event-test-encounter" class="event-encounter">
+        <span id="event-test-kind" class="eyebrow">강호에서 마주친 일</span>
+        <h3 id="event-test-title" tabindex="-1" data-popup-heading></h3>
+        <p id="event-test-body"></p>
+        <div id="event-test-choices"></div>
+        <p class="field-help">
+          과제 점수는 0~25점 안에서 반영됩니다. 부족한 능력치와 은전은 선택지에
+          표시됩니다.
+        </p>
+      </article>
+    </dialog>
     <dialog id="confirm-dialog">
       <h2 id="confirm-title"></h2>
       <p id="confirm-description"></p>

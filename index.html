@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="/src/styles/main.css" />
     <link rel="stylesheet" href="/src/styles/mobile.css" />
     <link rel="stylesheet" href="/src/styles/era.css" />
+    <link rel="stylesheet" href="/src/styles/event-popup.css" />
   </head>
   <body>
     <header>
@@ -388,13 +389,10 @@
           </details>
         </aside>
         <div>
-          <section
-            id="road-event-panel"
-            class="road-event-panel"
-            tabindex="-1"
-            aria-label="돌발 사건"
-            hidden
-          ></section>
+          <div id="road-event-notice" class="event-popup-notice" hidden>
+            <p>돌발 사건이 선택을 기다립니다.</p>
+            <button id="road-event-reopen" type="button">사건 확인</button>
+          </div>
           <div id="world-actions" class="world-actions"></div>
           <div id="world-goal" class="world-goal"></div>
           <section
@@ -430,6 +428,22 @@
         </div>
       </div>
     </section>
+    <dialog
+      id="road-event-dialog"
+      class="event-popup"
+      aria-labelledby="road-event-title"
+    >
+      <div class="event-popup-header">
+        <span>강호의 돌발 사건</span
+        ><button id="road-event-dismiss" type="button">잠시 닫기 ×</button>
+      </div>
+      <section
+        id="road-event-panel"
+        class="road-event-panel"
+        tabindex="-1"
+        aria-label="돌발 사건"
+      ></section>
+    </dialog>
     <dialog
       id="era-intro"
       class="era-intro"

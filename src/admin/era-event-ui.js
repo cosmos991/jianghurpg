@@ -1,3 +1,4 @@
+import { mountEventPopup } from "../event-popup.js";
 import {
   testSects,
   discipleRanks,
@@ -21,6 +22,12 @@ import { eraEvents, eventStatNames, eraStage } from "../game/era-events.js";
 
 export function mountEraEventTest() {
   const $ = (s) => document.querySelector(s);
+  const popup = mountEventPopup({
+    dialog: $("#event-test-dialog"),
+    notice: $("#event-test-notice"),
+    openButton: $("#event-test-reopen"),
+    closeButton: $("#event-test-dismiss"),
+  });
   let state = null;
   const presets = {
     weak: [15, 15, 15, 10, 0],
@@ -40,7 +47,10 @@ export function mountEraEventTest() {
     $("#event-test-start").hidden = !!state;
     $("#event-test-reset").hidden = !state;
     $("#event-test-play").hidden = !state;
-    if (!state) return;
+    if (!state) {
+      popup.sync(null);
+      return;
+    }
     const catalog = state.draw.template.catalog,
       score = eventScore(state),
       ended = testEnded(state);
@@ -152,8 +162,7 @@ export function mountEraEventTest() {
     document
       .querySelectorAll("[data-event-days]")
       .forEach((b) => (b.disabled = !!state.pending || ended));
-    const card = $("#event-test-encounter");
-    card.hidden = !state.pending;
+
     if (state.pending) {
       const current = getTestEvent(state),
         token = state.pending.token;
@@ -232,6 +241,7 @@ export function mountEraEventTest() {
         state.lastResult.choice +
         " → " +
         state.lastResult.summary;
+    popup.sync(state.pending?.token || null);
     const logs = $("#event-test-log");
     logs.replaceChildren();
     state.log.forEach((message) => logs.append(node("li", message)));
@@ -294,13 +304,6 @@ export function mountEraEventTest() {
             : testEnded(state)
               ? "시대가 끝났습니다. 아래에서 최종 성과를 확인하세요."
               : advanced + "일 진행했습니다. 오늘의 활동을 마쳤습니다.";
-          if (state.pending) {
-            $("#event-test-encounter").scrollIntoView({
-              block: "nearest",
-              behavior: "instant",
-            });
-            $("#event-test-title").focus({ preventScroll: true });
-          }
         } catch (e) {
           $("#event-test-status").textContent = e.message;
         }
@@ -314,11 +317,6 @@ export function mountEraEventTest() {
         render();
         $("#event-test-status").textContent =
           "시기 비교: 능력치·은전·성과를 유지하고 사건을 교체했습니다. 이동에 따른 성장이나 보상은 없습니다.";
-        $("#event-test-encounter").scrollIntoView({
-          block: "nearest",
-          behavior: "instant",
-        });
-        $("#event-test-title").focus({ preventScroll: true });
       }),
   );
   $("#sect-test-promote").onclick = () => {
@@ -337,11 +335,6 @@ export function mountEraEventTest() {
       render();
       $("#event-test-status").textContent =
         "문파 특수 임무를 받았습니다. 선택 한 번으로 결과가 반영됩니다.";
-      $("#event-test-encounter").scrollIntoView({
-        block: "nearest",
-        behavior: "instant",
-      });
-      $("#event-test-title").focus({ preventScroll: true });
     } catch (e) {
       $("#event-test-status").textContent = e.message;
     }

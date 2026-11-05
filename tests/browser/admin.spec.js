@@ -356,11 +356,14 @@ for (const width of [1280, 390])
       const easyLocked = await page
         .locator("#event-test-choices button:disabled")
         .count();
+      await page.locator("#event-test-dismiss").click();
       await page.locator('[data-event-stage="middle"]').click();
       await expect(page.locator("#event-test-phase")).toContainText("35~60");
       expect(await page.locator("#event-test-title").innerText()).not.toBe(
         early,
       );
+      await page.keyboard.press("Escape");
+      await expect(page.locator("#event-test-dialog")).not.toBeVisible();
       await page.locator('[data-event-stage="late"]').click();
       await expect(page.locator("#event-test-phase")).toContainText("65~90");
       await expect(page.locator("#event-test-day")).toContainText("13년");
@@ -463,3 +466,33 @@ for (const width of [1280, 390])
       expect(errors).toEqual([]);
     },
   );
+
+test("event popup dismiss, reopen and resolve preserve the pending decision", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 700 });
+  const api = await backend(page);
+  await login(page);
+  await page.locator("#event-test-start").click();
+  await page.locator('[data-event-days="7"]').click();
+  const popup = page.locator("#event-test-dialog");
+  await expect(popup).toBeVisible();
+  const title = await page.locator("#event-test-title").innerText();
+  await expect(page.locator("#event-test-title")).toBeFocused();
+  await page.screenshot({ path: "/tmp/event-popup-mobile.png" });
+  await popup.evaluate((el) => (el.scrollTop = el.scrollHeight));
+  await page.keyboard.press("Escape");
+  await expect(popup).not.toBeVisible();
+  await expect(page.locator("#event-test-notice")).toBeVisible();
+  await expect(page.locator('[data-event-days="1"]')).toBeDisabled();
+  await expect(page.locator("#event-test-score")).toHaveText("0 / 100점");
+  await page.locator("#event-test-reopen").click();
+  await expect(popup).toBeVisible();
+  expect(await popup.evaluate((el) => el.scrollTop)).toBe(0);
+  await expect(page.locator("#event-test-title")).toHaveText(title);
+  await page.locator('[data-event-choice="support"]').click();
+  await expect(popup).not.toBeVisible();
+  await expect(page.locator("#event-test-notice")).not.toBeVisible();
+  await expect(page.locator("#event-test-score")).toHaveText("3 / 100점");
+  expect(api.calls).toBe(0);
+});

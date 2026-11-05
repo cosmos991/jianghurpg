@@ -1,3 +1,4 @@
+import { mountEventPopup } from "./event-popup.js";
 import { mountEra } from "./era-ui.js";
 import { mountLongTraining } from "./long-training-ui.js";
 import { ensureCalendar, formatDate, dispatchDueEvent } from "./game/time.js";
@@ -892,13 +893,6 @@ function finishWorldTurn(text) {
     );
   persist();
   renderWorld();
-  if (j.pendingEvent) {
-    $("#road-event-panel").scrollIntoView({
-      behavior: reduced() ? "instant" : "smooth",
-      block: "start",
-    });
-    $("#road-event-panel").focus({ preventScroll: true });
-  }
 }
 function gainMartial(id, amount) {
   const j = state.journey,
@@ -1460,6 +1454,10 @@ function renderPlayerSituation() {
     `<div class="situation-top"><span class="eyebrow">YOUR CURRENT STORY · 지금 나의 상황</span><span class="situation-time">${`${formatDate(j.turn)}${j.turn < 14 ? ` · 문파 방문까지 ${view.actionsLeft}회 행동` : " · 문파 입문과 독행"}`}</span></div><h2>${view.title}</h2><div class="situation-tags"><span>${sects[j.progress?.sect]?.name || (j.academy.enrolled ? "청계학관 재학 · 문파 무소속" : "문파 무소속")}</span><span>${escapeText(alignmentIdentity().label)}</span><span>${escapeText(origins[state.chosen.origin].name)}</span><span>${state.encounter.kind === "major" ? "큰 기연" : state.encounter.kind === "minor" ? "작은 인연" : "평범한 출발"}</span></div><details class="situation-details" ${mobileLayout.matches ? "" : "open"}><summary>나의 상황 자세히 보기</summary><p class="situation-opening">${escapeText(view.opening)}</p><p class="situation-story">${escapeText(view.background)} ${escapeText(view.growth)}</p><div class="situation-conditions">${view.resourceNotes.map((n) => `<div class="${n.kind}"><small>${n.label}</small><strong>${n.text}</strong></div>`).join("")}</div></details><div class="situation-next"><span>${view.completed ? "다음 여정" : "추천 행동 · " + labels[view.next]}</span><p>${view.reason}</p>${view.next ? '<button id="view-suggestion" class="text-button">행동 살펴보기 ↓</button>' : ""}</div><div class="week-progress" role="meter" aria-label="첫 일주일 진행" aria-valuemin="0" aria-valuemax="14" aria-valuenow="${Math.min(14, j.turn)}"><i style="width:${(Math.min(14, j.turn) / 14) * 100}%"></i></div>`;
   if (view.next)
     $("#view-suggestion").onclick = () => {
+      if (view.next === "event") {
+        roadPopup.open();
+        return;
+      }
       const button =
         view.next === "progress"
           ? $("#progression-panel")
@@ -1604,12 +1602,14 @@ function renderAlignment() {
 function renderRoadEvent() {
   const j = state.journey,
     panel = $("#road-event-panel");
-  panel.hidden = !j.pendingEvent;
-  if (!j.pendingEvent) return;
+  if (!j.pendingEvent) {
+    roadPopup.sync(null);
+    return;
+  }
   const event = roadEvents.find((e) => e.id === j.pendingEvent.id);
   if (!event) return;
   const token = j.pendingEvent.token;
-  panel.innerHTML = `<div class="road-event-top"><span class="eyebrow">UNEXPECTED ENCOUNTER · 돌발 사건</span><small>${event.place}</small></div><h2>${event.title}</h2><p class="road-event-story">${event.story}</p><div class="road-event-choices">${event.choices.map((c, i) => `<button data-road-choice="${i}" ${roadChoiceAllowed(c) ? "" : "disabled"}><strong>${c.text}</strong>${roadChoiceAllowed(c) ? "" : "<em>필요 자원 부족</em>"}</button>`).join("")}</div><p class="road-event-note">어느 길로 나아갈지는 당신의 선택에 달려 있습니다. 결정한 선택은 되돌릴 수 없습니다.</p>`;
+  panel.innerHTML = `<div class="road-event-top"><span class="eyebrow">UNEXPECTED ENCOUNTER · 돌발 사건</span><small>${event.place}</small></div><h2 id="road-event-title" data-popup-heading tabindex="-1">${event.title}</h2><p class="road-event-story">${event.story}</p><div class="road-event-choices">${event.choices.map((c, i) => `<button data-road-choice="${i}" ${roadChoiceAllowed(c) ? "" : "disabled"}><strong>${c.text}</strong>${roadChoiceAllowed(c) ? "" : "<em>필요 자원 부족</em>"}</button>`).join("")}</div><p class="road-event-note">어느 길로 나아갈지는 당신의 선택에 달려 있습니다. 결정한 선택은 되돌릴 수 없습니다.</p>`;
   document
     .querySelectorAll("[data-road-choice]")
     .forEach(
@@ -1617,7 +1617,15 @@ function renderRoadEvent() {
         (b.onclick = () =>
           resolveRoadEvent(token, Number(b.dataset.roadChoice))),
     );
+  roadPopup.sync(token);
 }
+const roadPopup = mountEventPopup({
+  dialog: $("#road-event-dialog"),
+  notice: $("#road-event-notice"),
+  openButton: $("#road-event-reopen"),
+  closeButton: $("#road-event-dismiss"),
+  fallbackFocus: () => document.querySelector('[data-action="rest"]'),
+});
 const progression = mountProgression({
   state,
   catalog: martialCatalog,

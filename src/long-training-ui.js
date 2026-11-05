@@ -74,11 +74,6 @@ export function mountLongTraining({
       notify(reasons[result.reason] || "수련을 이어갈 수 없습니다.");
     syncMartial(j);
     refresh();
-    if (j.pendingEvent) {
-      const panel = document.querySelector("#road-event-panel");
-      panel.scrollIntoView({ block: "start", behavior: "smooth" });
-      panel.focus({ preventScroll: true });
-    }
   }
   function start() {
     if (locked()) return notify("진행 중인 사건·비무·수련을 먼저 마쳐주세요.");
