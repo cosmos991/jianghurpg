@@ -111,9 +111,10 @@
             <nav aria-label="편집 항목">
               <a href="#era-draw-section">00 <span>시대 추첨 테스트</span></a
               ><a href="#era-event-section">01 <span>짧은 사건 테스트</span></a
-              ><a href="#era-section">02 <span>시대의 배경</span></a
-              ><a href="#objectives-section">03 <span>과제와 점수</span></a
-              ><a href="#outcomes-section">04 <span>결과와 보상</span></a>
+              ><a href="#growth-section">02 <span>20년 성장 비교</span></a
+              ><a href="#era-section">03 <span>시대의 배경</span></a
+              ><a href="#objectives-section">04 <span>과제와 점수</span></a
+              ><a href="#outcomes-section">05 <span>결과와 보상</span></a>
             </nav>
             <div class="sidebar-guide">
               <strong>초안과 적용</strong>
@@ -437,6 +438,178 @@
                   <summary>최근 기록 20개</summary>
                   <ol id="event-test-log"></ol>
                 </details>
+              </div>
+            </section>
+            <section id="growth-section" class="editor-card">
+              <div class="section-heading">
+                <div>
+                  <span class="eyebrow">BALANCE LAB · 20 YEARS</span>
+                  <h2>20년 성장 비교</h2>
+                </div>
+                <span class="status-badge">가정 검증</span>
+              </div>
+              <p class="section-description">
+                무소속과 문파 3곳을 같은 시드·활동 계획으로 비교합니다. 한
+                능력치에 집중하며 다른 능력치는 기본값을 유지합니다. 기존 사건
+                테스트의 하루 +2 성장과 별개인 조정용 모델입니다.
+              </p>
+              <div class="growth-fields">
+                <label
+                  >시드<input
+                    id="growth-seed"
+                    value="growth-001"
+                    maxlength="128"
+                /></label>
+                <label
+                  >시작 능력치<input
+                    id="growth-start"
+                    type="number"
+                    value="15"
+                    min="0"
+                    max="100"
+                /></label>
+                <label
+                  >집중 수련<select id="growth-focus">
+                    <option value="force">무력</option>
+                    <option value="wisdom">지혜</option>
+                    <option value="speech">처세</option>
+                    <option value="inner">내공</option>
+                  </select></label
+                >
+                <label
+                  >검사할 시대<select id="growth-era">
+                    <option value="demonic">마교의 준동</option>
+                    <option value="manual">비급의 행방</option>
+                    <option value="schism">정파의 분열</option>
+                  </select></label
+                >
+                <label
+                  >수련 비율 %<input
+                    id="growth-training"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value="60"
+                /></label>
+                <label
+                  >기연 탐색 비율 %<input
+                    id="growth-fortune"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value="20"
+                /></label>
+              </div>
+              <div class="era-draw-actions">
+                <button
+                  type="button"
+                  class="secondary"
+                  data-growth-plan="training"
+                >
+                  수련 위주</button
+                ><button
+                  type="button"
+                  class="secondary"
+                  data-growth-plan="balanced"
+                >
+                  균형형</button
+                ><button
+                  type="button"
+                  class="secondary"
+                  data-growth-plan="fortune"
+                >
+                  기연 위주
+                </button>
+              </div>
+              <p id="growth-work"></p>
+              <details class="growth-settings">
+                <summary>성장·문파·기연·생계 수치 조정</summary>
+                <div class="growth-fields">
+                  <label
+                    >능력치 +1에 필요한 수련 일수<input
+                      id="growth-trainingDays"
+                      type="number"
+                      value="60"
+                      min="1"
+                      max="7200"
+                  /></label>
+                  <label
+                    >문파 수련 효율 보정 %<input
+                      id="growth-sectBonus"
+                      type="number"
+                      value="20"
+                      min="0"
+                      max="100"
+                  /></label>
+                  <label
+                    >탐색 하루당 기연 확률 %<input
+                      id="growth-fortuneChance"
+                      type="number"
+                      value="0.5"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                  /></label>
+                  <label
+                    >기연 1회 성장량<input
+                      id="growth-fortuneGain"
+                      type="number"
+                      value="1"
+                      min="0"
+                      max="10"
+                  /></label>
+                  <label
+                    >수련 하루 은전 비용<input
+                      id="growth-trainingCost"
+                      type="number"
+                      value="1"
+                      min="0"
+                      max="10000"
+                  /></label>
+                  <label
+                    >탐색 하루 은전 비용<input
+                      id="growth-fortuneCost"
+                      type="number"
+                      value="1"
+                      min="0"
+                      max="10000"
+                  /></label>
+                  <label
+                    >생계 하루 은전 수입<input
+                      id="growth-workIncome"
+                      type="number"
+                      value="4"
+                      min="0"
+                      max="10000"
+                  /></label>
+                  <label
+                    >시작 은전<input
+                      id="growth-startingMoney"
+                      type="number"
+                      value="100"
+                      min="0"
+                      max="10000"
+                  /></label>
+                </div>
+              </details>
+              <p class="field-help">
+                문파 보정은 화산의 무력, 무당·소림의 내공 수련에만 적용합니다.
+                여기서는 고정 보정만 비교하며 승급·특수 임무·사건 보상은
+                계산하지 않습니다. 은전이 부족한 날은 생계로 전환합니다.
+              </p>
+              <button id="growth-run" type="button" class="primary">
+                같은 조건으로 20년 비교
+              </button>
+              <p id="growth-status" role="status" aria-live="polite"></p>
+              <div id="growth-report" hidden>
+                <p id="growth-report-summary"></p>
+                <p class="field-help">
+                  ‘주요 선택 가능’은 해당 시기 사건의 일반 능력치 요구 선택지를
+                  대상으로 합니다. 무조건 기여·지나가기·마도 전용 선택은
+                  제외하며, 시대 성공률이나 실제 사건 발생 횟수를 뜻하지
+                  않습니다. 기연은 시드 1개의 표본입니다.
+                </p>
+                <div id="growth-results"></div>
               </div>
             </section>
             <form id="catalog-form" hidden novalidate>

@@ -1467,3 +1467,78 @@ dialog::backdrop {
     padding: 16px 12px;
   }
 }
+
+.growth-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 18px 0;
+}
+.growth-fields label {
+  min-width: 0;
+}
+.growth-fields input,
+.growth-fields select {
+  min-width: 0;
+}
+.growth-settings {
+  border-block: 1px solid var(--border);
+  padding: 15px 0;
+  margin: 18px 0;
+}
+.growth-settings summary {
+  cursor: pointer;
+  min-height: 44px;
+}
+.growth-run-card {
+  margin-top: 20px;
+  padding: 20px;
+  background: #102019;
+  border: 1px solid var(--border);
+}
+.growth-run-card h3 {
+  color: var(--gold);
+  font-size: 19px;
+}
+.growth-run-card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.growth-run-card th,
+.growth-run-card td {
+  padding: 12px 4px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.growth-run-card p {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  line-height: 1.9;
+}
+#growth-run {
+  min-height: 48px;
+}
+@media (max-width: 760px) {
+  .growth-fields {
+    grid-template-columns: 1fr;
+  }
+  .growth-run-card {
+    padding: 14px 10px;
+  }
+  .growth-run-card table {
+    font-size: 13px;
+  }
+  #growth-section p {
+    font-size: 14px;
+  }
+  #growth-run {
+    width: 100%;
+    font-size: 16px;
+  }
+}
+#growth-report-summary {
+  overflow-wrap: anywhere;
+  color: #dccc9f;
+  line-height: 1.9;
+}

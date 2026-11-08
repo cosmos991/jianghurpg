@@ -1,3 +1,4 @@
+import { mountGrowthSimulation } from "./growth-ui.js";
 import { mountEraEventTest } from "./era-event-ui.js";
 import { mountEraDraw } from "./era-draw-ui.js";
 import { createClient } from "@supabase/supabase-js";
@@ -545,3 +546,5 @@ if (!client) {
 mountEraDraw();
 
 mountEraEventTest();
+
+mountGrowthSimulation();

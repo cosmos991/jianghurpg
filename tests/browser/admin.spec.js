@@ -496,3 +496,58 @@ test("event popup dismiss, reopen and resolve preserve the pending decision", as
   await expect(page.locator("#event-test-score")).toHaveText("3 / 100점");
   expect(api.calls).toBe(0);
 });
+
+for (const width of [1280, 390])
+  test(
+    "growth comparison runs, validates and leaves era edits untouched at " +
+      width,
+    async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      const api = await backend(page),
+        errors = [];
+      page.on("pageerror", (e) => errors.push(e.message));
+      await login(page);
+      await expect(page.locator("#catalog-form")).toBeVisible();
+      await page.locator("#growth-run").click();
+      await expect(page.locator(".growth-run-card")).toHaveCount(4);
+      await expect(page.locator(".growth-run-card").first()).toContainText(
+        "91",
+      );
+      await expect(page.locator(".growth-run-card").nth(1)).toContainText(
+        "상한 100 도달",
+      );
+      const before = await page.locator("#growth-results").innerText();
+      await page.locator("#growth-run").click();
+      await expect(page.locator("#growth-results")).toHaveText(before, {
+        useInnerText: true,
+      });
+      await page.locator("#growth-training").fill("90");
+      await page.locator("#growth-run").click();
+      await expect(page.locator("#growth-status")).toContainText("합계");
+      await page.locator('[data-growth-plan="training"]').click();
+      await expect(page.locator("#growth-training")).toHaveValue("80");
+      await page.locator("#growth-run").click();
+      await expect(page.locator("#growth-report-summary")).toContainText(
+        "80/5/15%",
+      );
+      await page.locator('[data-growth-plan="balanced"]').click();
+      await page.locator("#growth-run").click();
+      await expect(page.locator("#growth-report-summary")).toContainText(
+        "60/20/20%",
+      );
+
+      await expect(page.locator("#dirty-status")).toHaveText(
+        "저장된 상태입니다",
+      );
+      expect(api.calls).toBe(0);
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      await page
+        .locator("#growth-section")
+        .screenshot({ path: "/tmp/growth-" + width + ".png" });
+      expect(errors).toEqual([]);
+    },
+  );
