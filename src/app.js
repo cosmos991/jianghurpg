@@ -1,3 +1,4 @@
+import { mountMobileWorld, revealWorldTarget } from "./mobile-world.js";
 import { mountEventPopup } from "./event-popup.js";
 import { mountEra } from "./era-ui.js";
 import { mountLongTraining } from "./long-training-ui.js";
@@ -9,7 +10,7 @@ import {
   erosionEffects,
 } from "./game/darkness.js";
 import { mountProgression } from "./progression-ui.js";
-import { sectArts, sects, ensureProgress } from "./game/progression.js";
+import { realms, sectArts, sects, ensureProgress } from "./game/progression.js";
 import { loadSave, saveGame } from "./game/storage.js";
 import {
   DRAW_RULES,
@@ -38,11 +39,7 @@ import {
 Object.assign(martialCatalog, sectArts);
 const $ = (s) => document.querySelector(s);
 const mobileLayout = window.matchMedia("(max-width: 760px)");
-function updateProfileDisclosure() {
-  $("#world-profile-details").open = !mobileLayout.matches;
-}
-updateProfileDisclosure();
-mobileLayout.addEventListener("change", updateProfileDisclosure);
+const mobileWorld = mountMobileWorld(mobileLayout);
 
 let state;
 try {
@@ -996,6 +993,7 @@ function worldAction(kind) {
     const c = selectedTraining();
     if (!c) {
       notify("먼저 학관에 입학해 무공을 배우거나 보유 비급을 습득해주세요.");
+      revealWorldTarget($("#martial-panel"));
       $("#martial-panel").scrollIntoView({
         behavior: reduced() ? "instant" : "smooth",
         block: "start",
@@ -1030,6 +1028,7 @@ function worldAction(kind) {
     const c = activeMind();
     if (!c) {
       notify("운기조식을 하려면 심법을 먼저 배워야 합니다.");
+      revealWorldTarget($("#martial-panel"));
       $("#martial-panel").scrollIntoView({
         behavior: reduced() ? "instant" : "smooth",
         block: "start",
@@ -1165,11 +1164,13 @@ function enrollAcademy() {
   finishWorldTurn(
     `청계학관에 정식 입학했습니다. ${cost ? "입학금 은전 −5" : "추천서로 입학금 면제"} · 기력 −8. 이제 수강할 무공과 심법을 고를 수 있습니다.`,
   );
-  if (!j.pendingEvent)
+  if (!j.pendingEvent) {
+    revealWorldTarget($("#martial-panel"));
     $("#martial-panel").scrollIntoView({
       behavior: reduced() ? "instant" : "smooth",
       block: "start",
     });
+  }
 }
 function renderMartial() {
   const j = state.journey;
@@ -1293,6 +1294,12 @@ function renderWorld() {
   progression.render();
   longTraining.render();
   era.render();
+  mobileWorld.render(
+    j,
+    playerSituation(),
+    realms[j.progress.realm].name,
+    sects[j.progress.sect]?.name || "무소속",
+  );
   $("#world-log-entries").innerHTML = j.log
     .map(
       (l) =>
@@ -1466,6 +1473,7 @@ function renderPlayerSituation() {
             : view.next === "martial"
               ? $("#martial-panel")
               : document.querySelector(`[data-action="${view.next}"]`);
+      revealWorldTarget(button);
       button?.scrollIntoView({
         behavior: reduced() ? "instant" : "smooth",
         block: "center",

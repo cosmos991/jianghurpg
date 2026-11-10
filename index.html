@@ -365,16 +365,20 @@
         aria-label="현재 시대"
       ></section>
       <nav class="mobile-world-nav" aria-label="게임 화면 바로가기">
-        <a href="#world-actions">행동</a
-        ><a href="#long-training-panel">장기 수련</a
-        ><a href="#progression-panel">비무·문파</a
-        ><a href="#martial-panel">무공</a><a href="#world-log">기록</a>
+        <a href="#world-actions" aria-current="location">행동</a
+        ><a href="#group-growth" data-groups="group-growth group-martial"
+          >성장</a
+        ><a href="#group-progression">문파·비무</a
+        ><a href="#group-records" data-groups="group-records group-alignment"
+          >기록</a
+        >
       </nav>
       <div class="world-layout">
         <aside class="world-player">
           <div id="world-portrait" class="portrait-art"></div>
           <h2 id="world-player-name"></h2>
           <p id="world-background"></p>
+          <p id="world-core-status"></p>
           <div id="world-resources"></div>
           <details
             id="world-profile-details"
@@ -388,43 +392,103 @@
             <ul id="world-items"></ul>
           </details>
         </aside>
-        <div>
+        <div class="world-main">
+          <div class="mobile-goal">
+            <span>지금의 목표</span><strong id="mobile-goal-title"></strong>
+            <p id="mobile-goal-reason"></p>
+            <button
+              id="mobile-goal-open"
+              type="button"
+              aria-label="추천 목표에 필요한 화면 열기"
+            >
+              열기 ↗
+            </button>
+          </div>
           <div id="road-event-notice" class="event-popup-notice" hidden>
             <p>돌발 사건이 선택을 기다립니다.</p>
             <button id="road-event-reopen" type="button">사건 확인</button>
           </div>
           <div id="world-actions" class="world-actions"></div>
+          <p id="mobile-latest" class="mobile-latest" aria-live="polite"></p>
           <div id="world-goal" class="world-goal"></div>
-          <section
-            id="long-training-panel"
-            class="long-training-panel"
-            aria-label="장기 수련"
-          ></section>
-          <section
-            id="progression-panel"
-            class="progression-panel"
-            aria-label="수련과 문파"
-          ></section>
+          <details
+            id="group-growth"
+            class="world-info-group"
+            data-world-group
+            open
+          >
+            <summary>성장 · 상태와 장기 수련</summary>
+            <div id="mobile-profile-host"><p id="mobile-origin"></p></div>
+            <section
+              id="long-training-panel"
+              class="long-training-panel"
+              aria-label="장기 수련"
+            ></section>
+          </details>
+          <details
+            id="group-progression"
+            class="world-info-group"
+            data-world-group
+            open
+          >
+            <summary>문파 · 비무와 수련</summary>
+            <section
+              id="progression-panel"
+              class="progression-panel"
+              aria-label="수련과 문파"
+            ></section>
+          </details>
 
-          <section
-            id="alignment-panel"
-            class="alignment-panel"
-            aria-label="강호 성향"
-          ></section>
+          <details
+            id="group-alignment"
+            class="world-info-group"
+            data-world-group
+            open
+          >
+            <summary>성향 · 인연과 선택</summary>
+            <section
+              id="alignment-panel"
+              class="alignment-panel"
+              aria-label="강호 성향"
+            ></section>
+          </details>
 
-          <section
-            id="martial-panel"
-            class="martial-panel"
-            tabindex="-1"
-            aria-label="나의 무공과 심법"
-          ></section>
-          <section id="world-log" class="world-log">
-            <div class="aside-heading">
-              <h2>강호 일지</h2>
-              <span>행동마다 오전·오후가 흐릅니다</span>
-            </div>
-            <div id="world-log-entries" aria-live="polite"></div>
-          </section>
+          <details
+            id="group-martial"
+            class="world-info-group"
+            data-world-group
+            open
+          >
+            <summary>무공 · 심법 관리</summary>
+            <section
+              id="martial-panel"
+              class="martial-panel"
+              tabindex="-1"
+              aria-label="나의 무공과 심법"
+            ></section>
+          </details>
+          <details
+            id="group-records"
+            class="world-info-group"
+            data-world-group
+            open
+          >
+            <summary>기록 · 강호 일지</summary>
+            <button
+              id="review-encounter-mobile"
+              class="secondary mobile-review"
+              type="button"
+            >
+              시작 인연 돌아보기
+            </button>
+            <section id="world-log" class="world-log">
+              <div class="aside-heading">
+                <h2>강호 일지</h2>
+                <span>행동마다 오전·오후가 흐릅니다</span>
+              </div>
+              <div id="world-log-entries" aria-live="polite"></div>
+            </section>
+          </details>
         </div>
       </div>
     </section>

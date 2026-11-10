@@ -1,3 +1,4 @@
+import { revealWorldTarget } from "./mobile-world.js";
 import { mountDarkness } from "./darkness-ui.js";
 import { canVisitSect, ensureDarkness, darkPractice } from "./game/darkness.js";
 import {
@@ -69,6 +70,7 @@ export function mountProgression({
     j.energy -= 15;
     p.battle = createBattle(j, state.chosen, catalog, mode, sect);
     refresh();
+    revealWorldTarget(panel);
     panel.scrollIntoView({ block: "start", behavior: "smooth" });
   }
   function battleAction(action) {

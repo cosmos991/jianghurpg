@@ -1,9 +1,10 @@
-import { test, expect } from "./fixtures.js";
+import { test, expect, expandGamePanels } from "./fixtures.js";
 const read = (page) =>
   page.evaluate(() => JSON.parse(localStorage.getItem("jianghu-fate-v1")));
 async function resolveEvent(page) {
   if ((await read(page)).journey.pendingEvent)
     await page.locator("[data-road-choice]:enabled").last().click();
+  await expandGamePanels(page);
 }
 async function createPlayer(page) {
   await page.goto("/");
@@ -12,6 +13,7 @@ async function createPlayer(page) {
   await page.locator("#confirm-character").click();
   await page.locator("#draw-encounter").click();
   await page.locator("#enter-world").click();
+  await expandGamePanels(page);
   await page.locator("#enroll-academy").click();
   await resolveEvent(page);
   await page.locator('[data-art="liuhe"]').click();
@@ -64,6 +66,7 @@ test("guided training, combat lock, reload, rewards and breakthrough", async ({
   await page.locator('[data-battle="attack"]').click();
   const battle = (await read(page)).journey.progress.battle;
   await page.reload();
+  await expandGamePanels(page);
   expect((await read(page)).journey.progress.battle).toEqual(battle);
   await winBattle(page);
   await resolveEvent(page);
@@ -71,6 +74,7 @@ test("guided training, combat lock, reload, rewards and breakthrough", async ({
   expect(won.journey.progress.wins).toBe(1);
   expect(won.journey.progress.battle.rewardClaimed).toBe(true);
   await page.reload();
+  await expandGamePanels(page);
   expect((await read(page)).journey.progress.wins).toBe(1);
   // A deterministic boundary fixture verifies the first breakthrough and permanent cap separation.
   await page.evaluate(() => {
@@ -82,6 +86,7 @@ test("guided training, combat lock, reload, rewards and breakthrough", async ({
     localStorage.setItem("jianghu-fate-v1", JSON.stringify(s));
   });
   await page.reload();
+  await expandGamePanels(page);
   await page.locator('[data-progress="breakthrough"]').click();
   expect((await read(page)).journey.progress.realm).toBe(1);
   expect(errors).toEqual([]);
@@ -113,6 +118,7 @@ for (const sect of ["huashan", "wudang", "shaolin"]) {
       localStorage.setItem("jianghu-fate-v1", JSON.stringify(s));
     });
     await page.reload();
+    await expandGamePanels(page);
     await page.locator(`[data-visit="${sect}"]`).click();
     await page.locator('[data-progress="exam"]').click();
     await winBattle(page);
@@ -133,6 +139,7 @@ for (const sect of ["huashan", "wudang", "shaolin"]) {
     await resolveEvent(page);
     expect((await read(page)).journey.progress.contribution).toBe(1);
     await page.reload();
+    await expandGamePanels(page);
     expect((await read(page)).journey.progress.sect).toBe(sect);
     expect(
       await page.evaluate(

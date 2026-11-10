@@ -1,9 +1,10 @@
-import { test, expect } from "./fixtures.js";
+import { test, expect, expandGamePanels } from "./fixtures.js";
 const read = (p) =>
   p.evaluate(() => JSON.parse(localStorage.getItem("jianghu-fate-v1")));
 async function road(p) {
   if ((await read(p)).journey.pendingEvent)
     await p.locator("[data-road-choice]:enabled").last().click();
+  await expandGamePanels(p);
 }
 async function setup(p, level = 0) {
   await p.goto("/");
@@ -12,6 +13,7 @@ async function setup(p, level = 0) {
   await p.locator("#confirm-character").click();
   await p.locator("#draw-encounter").click();
   await p.locator("#enter-world").click();
+  await expandGamePanels(p);
   await p.evaluate((level) => {
     const s = JSON.parse(localStorage.getItem("jianghu-fate-v1"));
     s.chosen.stats = [20, 20, 20, 20];
@@ -27,6 +29,7 @@ async function setup(p, level = 0) {
     localStorage.setItem("jianghu-fate-v1", JSON.stringify(s));
   }, level);
   await p.reload();
+  await expandGamePanels(p);
 }
 test("tiered temptation accepts once, survives reload and can be purified", async ({
   page,
@@ -37,6 +40,7 @@ test("tiered temptation accepts once, survives reload and can be purified", asyn
   await expect(page.locator(".temptation-offer")).toContainText("심연의 전승");
   const offer = (await read(page)).journey.darkness.offer;
   await page.reload();
+  await expandGamePanels(page);
   expect((await read(page)).journey.darkness.offer.token).toBe(offer.token);
   await page.locator("[data-dark-accept]").click();
   await road(page);
@@ -46,6 +50,7 @@ test("tiered temptation accepts once, survives reload and can be purified", asyn
   expect(s.journey.alignment.demonic).toBe(60);
   expect(s.journey.darkness.accepted).toBe(1);
   await page.reload();
+  await expandGamePanels(page);
   expect((await read(page)).journey.inner).toBe(40);
   await expect(page.locator("[data-dark-accept]")).toHaveCount(0);
   await page.locator("[data-purify]").click();
@@ -64,6 +69,7 @@ test("refusal keeps resources and affiliation unchanged", async ({ page }) => {
   expect(after.journey.turn).toBe(before.journey.turn);
   expect(after.journey.progress.sect).toBe(null);
   await page.reload();
+  await expandGamePanels(page);
   await expect(page.locator("[data-dark-accept]")).toHaveCount(0);
 });
 for (const sect of ["bloodmoon", "blacklotus"])
@@ -93,6 +99,7 @@ for (const sect of ["bloodmoon", "blacklotus"])
     expect(s.journey.inner).toBeGreaterThan(oldInner + 5);
     expect(s.journey.darkness.erosion).toBeGreaterThan(oldErosion);
     await page.reload();
+    await expandGamePanels(page);
     expect((await read(page)).journey.progress.sect).toBe(sect);
     expect(
       await page.evaluate(

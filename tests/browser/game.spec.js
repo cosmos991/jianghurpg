@@ -1,4 +1,4 @@
-import { test, expect } from "./fixtures.js";
+import { test, expect, expandGamePanels } from "./fixtures.js";
 
 const readState = (page) =>
   page.evaluate(() => JSON.parse(localStorage.getItem("jianghu-fate-v1")));
@@ -27,11 +27,13 @@ for (const viewport of [
     await page.locator("#draw-encounter").click();
     await expect(page.locator("#enter-world")).toBeVisible();
     await page.locator("#enter-world").click();
+    await expandGamePanels(page);
     await expect(page.locator("#world-player-name")).toHaveText("청운검객");
 
     async function resolveEvent() {
       if ((await readState(page)).journey.pendingEvent) {
         await page.locator("[data-road-choice]:enabled").last().click();
+        await expandGamePanels(page);
       }
     }
     await page.locator("#enroll-academy").click();
@@ -43,6 +45,7 @@ for (const viewport of [
     expect((await readState(page)).journey.arts.liuhe.xp).toBeGreaterThan(0);
     const before = await readState(page);
     await page.reload();
+    await expandGamePanels(page);
     await expect(page.locator("#world-screen")).toBeVisible();
     expect((await readState(page)).journey.turn).toBe(before.journey.turn);
     expect((await readState(page)).encounter).toEqual(before.encounter);
@@ -84,6 +87,7 @@ test("ten-draw budget survives reload and cannot be exceeded", async ({
   await expect(page.locator("#count")).toHaveText("0");
   await expect(page.locator("#roll")).toBeDisabled();
   await page.reload();
+  await expandGamePanels(page);
   await expect(page.locator("#roll")).toBeDisabled();
   expect((await readState(page)).drawsUsed).toBe(10);
 });

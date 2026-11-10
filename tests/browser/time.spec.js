@@ -1,9 +1,10 @@
-import { test, expect } from "./fixtures.js";
+import { test, expect, expandGamePanels } from "./fixtures.js";
 const read = (page) =>
   page.evaluate(() => JSON.parse(localStorage.getItem("jianghu-fate-v1")));
 async function road(page) {
   if ((await read(page)).journey.pendingEvent)
     await page.locator("[data-road-choice]:enabled").last().click();
+  await expandGamePanels(page);
 }
 async function setup(page) {
   await page.goto("/");
@@ -12,6 +13,7 @@ async function setup(page) {
   await page.locator("#confirm-character").click();
   await page.locator("#draw-encounter").click();
   await page.locator("#enter-world").click();
+  await expandGamePanels(page);
   await page.locator("#enroll-academy").click();
   await road(page);
   if (!(await read(page)).journey.arts.basicBreath)
@@ -35,6 +37,7 @@ async function setup(page) {
     localStorage.setItem("jianghu-fate-v1", JSON.stringify(s));
   });
   await page.reload();
+  await expandGamePanels(page);
 }
 for (const width of [1280, 390])
   test(`scheduled interruption, reload and month completion at ${width}px`, async ({
@@ -54,6 +57,7 @@ for (const width of [1280, 390])
       localStorage.setItem("jianghu-fate-v1", JSON.stringify(s));
     });
     await page.reload();
+    await expandGamePanels(page);
     await page.locator("#long-focus").selectOption("mind");
     await page.locator('[data-long="start"]').click();
     let s = await read(page);
@@ -64,6 +68,7 @@ for (const width of [1280, 390])
     await expect(page.locator('[data-long="resume"]')).toBeDisabled();
     const snapshot = s.journey.longTraining;
     await page.reload();
+    await expandGamePanels(page);
     expect((await read(page)).journey.longTraining).toEqual(snapshot);
     await road(page);
     for (
@@ -129,6 +134,7 @@ test("resource pause allows work, resumes at the same target and cancellation re
     localStorage.setItem("jianghu-fate-v1", JSON.stringify(s));
   });
   await page.reload();
+  await expandGamePanels(page);
   await page.locator("#long-focus").selectOption("mind");
   await page.locator('[data-long="start"]').click();
   let s = await read(page);
