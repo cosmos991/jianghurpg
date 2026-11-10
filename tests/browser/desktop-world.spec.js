@@ -12,6 +12,9 @@ test("desktop hub preserves actions while hiding long panels until requested", a
   await page.locator("#draw-encounter").click();
   await page.locator("#enter-world").click();
   await expect(page.locator("#world-actions button")).toHaveCount(6);
+  const portrait = await page.locator("#world-portrait").boundingBox();
+  expect(Math.abs(portrait.width - portrait.height)).toBeLessThan(1);
+
   for (const group of await page.locator("[data-world-group]").all())
     expect(await group.evaluate((el) => el.open)).toBe(false);
   await expect(page.locator("#long-training-panel")).not.toBeVisible();

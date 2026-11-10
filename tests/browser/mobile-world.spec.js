@@ -17,6 +17,9 @@ for (const width of [390, 320])
       page.on("pageerror", (e) => errors.push(e.message));
       await enter(page);
       await expect(page.locator("#world-actions button")).toHaveCount(6);
+      const portrait = await page.locator("#world-portrait").boundingBox();
+      expect(Math.abs(portrait.width - portrait.height)).toBeLessThan(1);
+
       for (const button of await page.locator("#world-actions button").all())
         await expect(button).toBeVisible();
       await expect(page.locator("#mobile-goal-title")).not.toBeEmpty();

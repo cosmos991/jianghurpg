@@ -733,7 +733,8 @@
   }
   .world-player > .portrait-art {
     width: 44px;
-    height: 52px;
+    height: auto;
+    aspect-ratio: 1;
     grid-row: 1/3;
   }
   #world-screen .world-player h2 {
@@ -982,7 +983,8 @@
   }
   .world-player > .portrait-art {
     width: 96px;
-    height: 128px;
+    height: auto;
+    aspect-ratio: 1;
     margin: 0 auto 12px;
   }
   .world-player h2 {
