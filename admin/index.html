@@ -521,6 +521,20 @@
                   기연 위주
                 </button>
               </div>
+              <div class="growth-fields">
+                <label
+                  >문파 비교 모드<select id="growth-mode">
+                    <option value="career">승급·임무 포함</option>
+                    <option value="training">임무 없는 외문 수련</option>
+                    <option value="fixed">기존 고정 보정 · 기준선</option>
+                  </select></label
+                ><label
+                  >임무 방침<select id="growth-policy">
+                    <option value="merit">공헌 우선 · 압박 가능 시 선택</option>
+                    <option value="era">시대 기여 우선 · 협력·중재</option>
+                  </select></label
+                >
+              </div>
               <p id="growth-work"></p>
               <details class="growth-settings">
                 <summary>성장·문파·기연·생계 수치 조정</summary>
@@ -593,10 +607,69 @@
                 </div>
               </details>
               <p class="field-help">
-                문파 보정은 화산의 무력, 무당·소림의 내공 수련에만 적용합니다.
-                여기서는 고정 보정만 비교하며 승급·특수 임무·사건 보상은
-                계산하지 않습니다. 은전이 부족한 날은 생계로 전환합니다.
+                문파 특기에 맞는 집중 수련에만 보정합니다. 승급 모드는
+                외문/내문/핵심에서 최대 보정의 25%/60%/100%를 받습니다. 임무
+                없는 외문 수련과 같은 조건으로 재계산해 성장 격차를 비교합니다.
+                임무는 생계일을 유지하고 수련·탐색일을 사용하며, 비용이 부족하면
+                생계를 합니다.
               </p>
+              <details class="growth-settings">
+                <summary>승급·임무 계산 기준</summary>
+                <p>
+                  내문: 실제 수련 360일, 공헌 120, 문파 주 능력치 30, 신임 15.
+                  핵심: 실제 수련 1,200일, 공헌 600, 문파 주 능력치 55, 신임 35.
+                  조건을 모두 충족하고 진행 중 임무가 끝나면 승급합니다.
+                </p>
+                <div class="growth-fields">
+                  <label
+                    >임무 종료 후 다음 임무까지 일수<input
+                      id="growth-missionInterval"
+                      type="number"
+                      value="90"
+                      min="4"
+                      max="7200"
+                  /></label>
+                  <label
+                    >외문 임무 수행 일수<input
+                      id="growth-missionOuterDays"
+                      type="number"
+                      value="3"
+                      min="1"
+                      max="7200"
+                  /></label>
+                  <label
+                    >내문 임무 수행 일수<input
+                      id="growth-missionInnerDays"
+                      type="number"
+                      value="5"
+                      min="1"
+                      max="7200"
+                  /></label>
+                  <label
+                    >핵심 임무 수행 일수<input
+                      id="growth-missionCoreDays"
+                      type="number"
+                      value="7"
+                      min="1"
+                      max="7200"
+                  /></label>
+                  <label
+                    >임무 하루 은전 비용<input
+                      id="growth-missionCost"
+                      type="number"
+                      value="1"
+                      min="0"
+                      max="10000"
+                  /></label>
+                </div>
+                <p>
+                  가능한 선택 중 방침에 맞춰 자동 선택합니다. 전체 기간을 완료한
+                  임무만 공헌·신임·관계·시대 점수를 받습니다. 미완료 임무의
+                  비용과 시간은 소비되지만 보상은 없습니다. 집중하지 않는
+                  능력치는 고정이므로 다른 주 능력치를 쓰는 문파는 승급이 막힐
+                  수 있습니다.
+                </p>
+              </details>
               <button id="growth-run" type="button" class="primary">
                 같은 조건으로 20년 비교
               </button>

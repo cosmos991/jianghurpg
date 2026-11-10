@@ -1,6 +1,23 @@
 import { seededRandom, normalizeSeed } from "./era-draw.js";
 import { eraEvents, eraStage, eventStatNames } from "./era-events.js";
-import { testSects } from "./sect-test.js";
+import {
+  testSects,
+  createTestSect,
+  discipleRanks,
+  sectPromotion,
+  promoteTestSect,
+  requestSectMission,
+} from "./sect-test.js";
+import {
+  startEventTest,
+  resolveTestEvent,
+  choiceAvailability,
+} from "./era-event-test.js";
+export const GROWTH_CAREER_RANKS = discipleRanks.map((rank, i) => ({
+  ...rank,
+  days: [0, 360, 1200][i],
+  contribution: [0, 120, 600][i],
+}));
 
 export const GROWTH_DEFAULTS = Object.freeze({
   version: 1,
@@ -13,11 +30,28 @@ export const GROWTH_DEFAULTS = Object.freeze({
   workIncome: 4,
   startingMoney: 100,
   cap: 100,
+  missionInterval: 90,
+  missionOuterDays: 3,
+  missionInnerDays: 5,
+  missionCoreDays: 7,
+  missionCost: 1,
 });
 export function validateGrowthInput(input) {
   const c = { ...GROWTH_DEFAULTS, ...input.rules };
   const integer = (n, min, max) => Number.isInteger(n) && n >= min && n <= max;
   normalizeSeed(input.seed);
+  if (!["fixed", "career", "training"].includes(input.sectMode || "fixed"))
+    throw Error("문파 비교 모드를 선택해주세요.");
+  if (!["merit", "era"].includes(input.missionPolicy || "merit"))
+    throw Error("임무 방침을 선택해주세요.");
+  for (const key of ["missionOuterDays", "missionInnerDays", "missionCoreDays"])
+    if (!integer(c[key], 1, 7200))
+      throw Error("임무 간격·기간은 1~7,200일의 정수여야 합니다.");
+  if (!integer(c.missionInterval, 4, 7200))
+    throw Error("임무 간격은 4~7,200일이어야 합니다.");
+  if (!integer(c.missionCost, 0, 10000))
+    throw Error("임무 비용은 0~10,000의 정수여야 합니다.");
+
   if (!Object.hasOwn(eventStatNames, input.focus) || input.focus === "demonic")
     throw Error("수련할 능력치를 선택해주세요.");
   if (!["demonic", "manual", "schism"].includes(input.typeId))
@@ -91,6 +125,19 @@ export function simulateGrowth(input, sectId = null) {
     60: input.start >= 60 ? 0 : null,
     90: input.start >= 90 ? 0 : null,
   };
+  const mode = input.sectMode || "fixed";
+  const context = startEventTest({ seed, typeId: input.typeId, stats, sectId });
+  // Shares actual stats and resources with the mission resolver; no fast sandbox gains.
+  context.stats = stats;
+  context.money = money;
+  const promotions = [],
+    series = [],
+    missionLog = [];
+  let activeMission = null,
+    missionsCompleted = 0,
+    missionDays = 0,
+    missionSpent = 0,
+    lastMissionEnd = 0;
   const checkpoints = [],
     bonus =
       sectId && testSects[sectId].stat === input.focus ? rules.sectBonus : 0;
@@ -115,28 +162,113 @@ export function simulateGrowth(input, sectId = null) {
           : 0;
     if (activity !== "work" && money < cost) {
       activity = "work";
-      forcedWork++;
     }
-    actual[activity]++;
-    if (activity === "work") money += rules.workIncome;
-    else money -= cost;
-    if (activity === "training") {
-      credit += 100 + bonus;
-      const gained = Math.floor(credit / (rules.trainingDays * 100));
-      credit %= rules.trainingDays * 100;
-      stats[input.focus] = Math.min(100, stats[input.focus] + gained);
+    if (sectId && mode === "career") {
+      context.day = day - 1;
+      context.sect.serviceDays = day - 1;
+      if (
+        !activeMission &&
+        chosen === "training" &&
+        day - lastMissionEnd >= rules.missionInterval &&
+        money >= rules.missionCost
+      ) {
+        context.money = money;
+        const event = requestSectMission(context);
+        const preference =
+          (input.missionPolicy || "merit") === "merit"
+            ? ["pressure", "cooperate", "mediate", "support"]
+            : ["cooperate", "mediate", "support"];
+        const choice = preference
+          .map((id) => event.choices.find((c) => c.id === id))
+          .find((c) => choiceAvailability(context, c).available);
+        activeMission = {
+          remaining: [
+            rules.missionOuterDays,
+            rules.missionInnerDays,
+            rules.missionCoreDays,
+          ][context.sect.rank],
+          choiceId: choice.id,
+          title: event.title,
+        };
+      }
+      if (activeMission && chosen !== "work") {
+        if (money >= rules.missionCost) activity = "mission";
+        else {
+          activity = "work";
+        }
+      }
     }
-    if (
-      activity === "fortune" &&
-      seededRandom("growth-v1:" + seed + ":" + day)() * 100 <
-        rules.fortuneChance
-    ) {
-      fortunes++;
-      stats[input.focus] = Math.min(
-        100,
-        stats[input.focus] + rules.fortuneGain,
-      );
+    if (activity === "work" && chosen !== "work") forcedWork++;
+    if (activity === "mission") {
+      money -= rules.missionCost;
+      missionSpent += rules.missionCost;
+      missionDays++;
+      activeMission.remaining--;
+      if (activeMission.remaining === 0) {
+        context.day = day;
+        context.money = money;
+        const completed = resolveTestEvent(
+          context,
+          context.pending.token,
+          activeMission.choiceId,
+        );
+        money = context.money;
+        missionsCompleted++;
+        lastMissionEnd = day;
+        missionLog.unshift({
+          day,
+          choice: activeMission.choiceId,
+          ...completed,
+        });
+        missionLog.splice(12);
+        activeMission = null;
+      }
+    } else {
+      actual[activity]++;
+      if (activity === "work") money += rules.workIncome;
+      else money -= cost;
+      if (activity === "training") {
+        credit +=
+          10000 +
+          (mode === "fixed"
+            ? bonus * 100
+            : bonus * [25, 60, 100][context.sect?.rank || 0]);
+        const gained = Math.floor(credit / (rules.trainingDays * 10000));
+        credit %= rules.trainingDays * 10000;
+        stats[input.focus] = Math.min(100, stats[input.focus] + gained);
+      }
+      if (
+        activity === "fortune" &&
+        seededRandom("growth-v1:" + seed + ":" + day)() * 100 <
+          rules.fortuneChance
+      ) {
+        fortunes++;
+        stats[input.focus] = Math.min(
+          100,
+          stats[input.focus] + rules.fortuneGain,
+        );
+      }
     }
+    if (sectId && mode !== "fixed") {
+      if (activity === "training") context.sect.practiceDays++;
+      context.day = day;
+      if (
+        !context.pending &&
+        sectPromotion(context, GROWTH_CAREER_RANKS).ready
+      ) {
+        const name = promoteTestSect(context, GROWTH_CAREER_RANKS);
+        promotions.push({
+          day,
+          name,
+          rank: context.sect.rank,
+          practiceDays: context.sect.practiceDays,
+          contribution: context.sect.contribution,
+          trust: context.sect.trust,
+          power: stats[testSects[sectId].stat],
+        });
+      }
+    }
+    series.push(stats[input.focus]);
     for (const target of [30, 60, 90])
       if (reached[target] === null && stats[input.focus] >= target)
         reached[target] = day;
@@ -152,6 +284,8 @@ export function simulateGrowth(input, sectId = null) {
         actual: { ...actual },
         forcedWork,
         fortunes,
+        rank: mode === "fixed" ? null : (context.sect?.rank ?? null),
+        missionScore: context.progress.reduce((s, n) => s + n, 0),
         access: majorChoiceAccess(stats, money, input.typeId, stage.id),
       });
     }
@@ -169,6 +303,25 @@ export function simulateGrowth(input, sectId = null) {
     reached,
     cappedDay,
     checkpoints,
+    mode,
+    series,
+    promotions,
+    career:
+      sectId && mode !== "fixed"
+        ? {
+            ...context.sect,
+            nextPromotion: sectPromotion(context, GROWTH_CAREER_RANKS),
+          }
+        : null,
+    missions: {
+      completed: missionsCompleted,
+      days: missionDays,
+      spent: missionSpent,
+      pendingDays: activeMission?.remaining || 0,
+      progress: [...context.progress],
+      score: context.progress.reduce((s, n) => s + n, 0),
+      log: missionLog,
+    },
   };
 }
 export function compareGrowth(input) {
@@ -176,8 +329,21 @@ export function compareGrowth(input) {
   return {
     version: 1,
     input: structuredClone(input),
-    runs: [null, ...Object.keys(testSects)].map((id) =>
-      simulateGrowth(input, id),
-    ),
+    runs: [null, ...Object.keys(testSects)].map((id) => {
+      const run = simulateGrowth(input, id);
+      if (id && input.sectMode === "career") {
+        const control = simulateGrowth({ ...input, sectMode: "training" }, id);
+        const lead = run.series.findIndex(
+          (value, i) => value > control.series[i],
+        );
+        run.control = {
+          final: control.stats[input.focus],
+          difference: run.stats[input.focus] - control.stats[input.focus],
+          firstLeadDay: lead < 0 ? null : lead + 1,
+          trainingDays: control.actual.training,
+        };
+      }
+      return run;
+    }),
   };
 }

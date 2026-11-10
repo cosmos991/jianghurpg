@@ -99,3 +99,119 @@ test("access counts match the selected phase pool and malformed settings fail be
     assert.throws(() => simulateGrowth({ ...base, ...bad }));
   assert.throws(() => simulateGrowth(base, "unknown"));
 });
+
+const careerInput = {
+  ...base,
+  sectMode: "career",
+  missionPolicy: "merit",
+  rules: { fortuneChance: 0.5 },
+};
+test("career missions consume real days, pay costs, and earn each promotion before its bonus applies", () => {
+  const r = simulateGrowth(careerInput, "huashan");
+  assert.equal(
+    Object.values(r.actual).reduce((sum, n) => sum + n, 0) + r.missions.days,
+    7200,
+  );
+  assert.equal(r.missions.spent, r.missions.days);
+  assert.ok(r.actual.training < 4320);
+  assert.equal(r.promotions.length, 2);
+  const requirements = [
+    { days: 360, merit: 120, power: 30, trust: 15 },
+    { days: 1200, merit: 600, power: 55, trust: 35 },
+  ];
+  r.promotions.forEach((p, i) => {
+    assert.equal(p.rank, i + 1);
+    assert.ok(p.practiceDays >= requirements[i].days);
+    assert.ok(p.contribution >= requirements[i].merit);
+    assert.ok(p.power >= requirements[i].power);
+    assert.ok(p.trust >= requirements[i].trust);
+  });
+  assert.ok(r.money >= 0);
+  assert.ok(r.career.relation >= -100 && r.career.relation <= 100);
+});
+test("uncompleted missions spend time but grant no merit, era score or free training", () => {
+  const r = simulateGrowth(
+    {
+      ...careerInput,
+      rules: { fortuneChance: 0, missionInterval: 4, missionOuterDays: 7200 },
+    },
+    "huashan",
+  );
+  assert.equal(r.missions.completed, 0);
+  assert.equal(r.career.contribution, 0);
+  assert.equal(r.missions.score, 0);
+  assert.equal(r.career.rank, 0);
+  assert.ok(r.missions.pendingDays > 0);
+  assert.ok(r.missions.days > 0);
+  assert.equal(
+    Object.values(r.actual).reduce((sum, n) => sum + n, 0) + r.missions.days,
+    7200,
+  );
+});
+test("career control uses the same outer-disciple conditions and reports the observed difference without assuming recovery", () => {
+  const report = compareGrowth(careerInput);
+  const r = report.runs[1],
+    control = simulateGrowth(
+      { ...careerInput, sectMode: "training" },
+      "huashan",
+    );
+  assert.equal(r.control.final, control.stats.force);
+  assert.equal(r.control.difference, r.stats.force - control.stats.force);
+  assert.equal(r.control.difference, -1);
+  assert.equal(r.control.firstLeadDay, null);
+  assert.equal(control.career.rank, 0);
+  assert.equal(control.missions.completed, 0);
+  assert.deepEqual(report, compareGrowth(careerInput));
+});
+test("mission policy changes sect relations and era contribution, while a mismatched focus blocks promotion", () => {
+  const merit = simulateGrowth({ ...careerInput, typeId: "schism" }, "huashan");
+  const era = simulateGrowth(
+    { ...careerInput, typeId: "schism", missionPolicy: "era" },
+    "huashan",
+  );
+  assert.ok(merit.career.relation < era.career.relation);
+  assert.ok(merit.missions.score < era.missions.score);
+  const other = simulateGrowth(careerInput, "wudang");
+  assert.equal(other.career.rank, 0);
+  assert.ok(other.career.nextPromotion.missing.some((s) => s.includes("내공")));
+  for (const bad of [
+    { sectMode: "unknown" },
+    { missionPolicy: "unknown" },
+    { rules: { missionInterval: 0 } },
+    { rules: { missionCoreDays: 0 } },
+  ])
+    assert.throws(() => simulateGrowth({ ...careerInput, ...bad }, "huashan"));
+});
+test("financial shortages cannot pay mission rewards or duplicate days", () => {
+  const r = simulateGrowth(
+    {
+      ...careerInput,
+      rules: { startingMoney: 0, workIncome: 0, fortuneChance: 0 },
+    },
+    "huashan",
+  );
+  assert.equal(r.missions.completed, 0);
+  assert.equal(r.career.contribution, 0);
+  assert.equal(r.money, 0);
+  assert.equal(r.actual.training, 0);
+  const mixed = simulateGrowth(
+    {
+      ...careerInput,
+      rules: {
+        trainingCost: 0,
+        startingMoney: 3,
+        missionCost: 10,
+        workIncome: 1,
+        missionInterval: 4,
+      },
+    },
+    "huashan",
+  );
+  assert.ok(mixed.money >= 0);
+  assert.ok(mixed.forcedWork <= mixed.actual.work);
+  assert.equal(
+    Object.values(mixed.actual).reduce((s, n) => s + n, 0) +
+      mixed.missions.days,
+    7200,
+  );
+});

@@ -44,10 +44,10 @@ export function createTestSect(id) {
     missionSerial: 0,
   };
 }
-export function sectPromotion(state) {
+export function sectPromotion(state, ranks = discipleRanks) {
   const s = state.sect;
   if (!s) return { ready: false, missing: ["먼저 문파에 소속되어야 합니다."] };
-  const next = discipleRanks[s.rank + 1];
+  const next = ranks[s.rank + 1];
   if (!next) return { ready: false, missing: [], max: true };
   const power = state.stats[testSects[s.id].stat];
   const missing = [];
@@ -60,15 +60,15 @@ export function sectPromotion(state) {
   if (s.trust < next.trust) missing.push("신임 " + s.trust + "/" + next.trust);
   return { ready: !missing.length, missing, next };
 }
-export function promoteTestSect(state) {
+export function promoteTestSect(state, ranks = discipleRanks) {
   if (state.pending) throw Error("먼저 진행 중인 사건을 마쳐주세요.");
-  const status = sectPromotion(state);
+  const status = sectPromotion(state, ranks);
   if (!status.ready)
     throw Error(
       status.max ? "최고 제자 등급입니다." : status.missing.join(" · "),
     );
   state.sect.rank++;
-  return discipleRanks[state.sect.rank].name;
+  return ranks[state.sect.rank].name;
 }
 export function trainTestSect(state, activity) {
   const s = state.sect;

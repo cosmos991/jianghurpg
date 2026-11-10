@@ -1,3 +1,4 @@
+import { discipleRanks } from "../game/sect-test.js";
 import { compareGrowth } from "../game/growth-simulation.js";
 import { eventStatNames } from "../game/era-events.js";
 export function mountGrowthSimulation() {
@@ -16,6 +17,11 @@ export function mountGrowthSimulation() {
     "fortuneCost",
     "workIncome",
     "startingMoney",
+    "missionInterval",
+    "missionOuterDays",
+    "missionInnerDays",
+    "missionCoreDays",
+    "missionCost",
   ];
   function ratio() {
     const work =
@@ -49,6 +55,8 @@ export function mountGrowthSimulation() {
       };
       const input = {
         seed: $("#growth-seed").value,
+        sectMode: $("#growth-mode").value,
+        missionPolicy: $("#growth-policy").value,
         focus: $("#growth-focus").value,
         typeId: $("#growth-era").value,
         start: read("#growth-start"),
@@ -63,7 +71,14 @@ export function mountGrowthSimulation() {
         const card = node("article", "");
         card.className = "growth-run-card";
         card.append(
-          node("h3", run.name + " · 해당 수련 보정 +" + run.bonus + "%"),
+          node(
+            "h3",
+            run.name +
+              (run.career ? " · " + discipleRanks[run.career.rank].name : "") +
+              " · 최대 수련 보정 +" +
+              run.bonus +
+              "%",
+          ),
         );
         const table = document.createElement("table");
         const head = document.createElement("thead"),
@@ -145,10 +160,96 @@ export function mountGrowthSimulation() {
                   "년 · 성장 과속 여부 검토",
           ),
         );
+        if (run.career) {
+          card.append(
+            node(
+              "p",
+              "승급 기록: " +
+                (run.promotions
+                  .map((p) => p.name + " " + (p.day / 360).toFixed(1) + "년")
+                  .join(" → ") || "20년 내 승급 없음"),
+            ),
+          );
+          if (!run.career.nextPromotion.max)
+            card.append(
+              node(
+                "p",
+                "다음 승급 미충족: " +
+                  run.career.nextPromotion.missing.join(" · "),
+              ),
+            );
+          card.append(
+            node(
+              "p",
+              "임무 " +
+                run.missions.completed +
+                "회 완료 · 수행 " +
+                run.missions.days +
+                "일 · 비용 " +
+                run.missions.spent +
+                " · 미완료 " +
+                run.missions.pendingDays +
+                "일",
+            ),
+          );
+          card.append(
+            node(
+              "p",
+              "문파 공헌 " +
+                run.career.contribution +
+                " · 신임 " +
+                run.career.trust +
+                " · 경쟁 문파 관계 " +
+                run.career.relation +
+                " · 임무 시대기여 " +
+                run.missions.score +
+                "/100",
+            ),
+          );
+          if (run.control)
+            card.append(
+              node(
+                "p",
+                "임무 없는 외문 수련 대비: 최종 " +
+                  (run.control.difference >= 0 ? "+" : "") +
+                  run.control.difference +
+                  " (수련만 " +
+                  run.control.final +
+                  ") · 처음 앞선 시점 " +
+                  (run.control.firstLeadDay === null
+                    ? "20년 내 없음"
+                    : (run.control.firstLeadDay / 360).toFixed(1) + "년"),
+              ),
+            );
+          const details = document.createElement("details");
+          details.append(node("summary", "최근 임무 결과"));
+          for (const entry of run.missions.log)
+            details.append(
+              node(
+                "p",
+                (entry.day / 360).toFixed(1) +
+                  "년 · " +
+                  entry.title +
+                  " / " +
+                  entry.choice +
+                  " → " +
+                  entry.summary,
+              ),
+            );
+          card.append(details);
+        }
         host.append(card);
       }
       $("#growth-report-summary").textContent =
-        "최근 계산: 시드 " +
+        "최근 계산: " +
+        {
+          fixed: "기존 고정 보정",
+          career: "승급·임무 포함",
+          training: "임무 없는 외문 수련",
+        }[input.sectMode] +
+        " · " +
+        (input.missionPolicy === "era" ? "시대 기여 우선" : "공헌 우선") +
+        " · 시드 " +
         input.seed.trim() +
         " · " +
         eventStatNames[input.focus] +

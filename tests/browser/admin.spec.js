@@ -508,6 +508,7 @@ for (const width of [1280, 390])
       page.on("pageerror", (e) => errors.push(e.message));
       await login(page);
       await expect(page.locator("#catalog-form")).toBeVisible();
+      await page.locator("#growth-mode").selectOption("fixed");
       await page.locator("#growth-run").click();
       await expect(page.locator(".growth-run-card")).toHaveCount(4);
       await expect(page.locator(".growth-run-card").first()).toContainText(
@@ -548,6 +549,48 @@ for (const width of [1280, 390])
       await page
         .locator("#growth-section")
         .screenshot({ path: "/tmp/growth-" + width + ".png" });
+      expect(errors).toEqual([]);
+    },
+  );
+
+for (const width of [1280, 390])
+  test(
+    "growth career compares earned ranks and mission opportunity cost at " +
+      width,
+    async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      const api = await backend(page),
+        errors = [];
+      page.on("pageerror", (e) => errors.push(e.message));
+      await login(page);
+      await expect(page.locator("#catalog-form")).toBeVisible();
+      await expect(page.locator("#growth-mode")).toHaveValue("career");
+      await page.locator("#growth-era").selectOption("schism");
+      await page.locator("#growth-run").click();
+      const huashan = page.locator(".growth-run-card").nth(1);
+      await expect(huashan).toContainText("핵심제자");
+      await expect(huashan).toContainText("내문제자 4.6년");
+      await expect(huashan).toContainText("최종 -1");
+      await expect(huashan).toContainText("임무 시대기여 0/100");
+      await page.locator("#growth-policy").selectOption("era");
+      await page.locator("#growth-run").click();
+      await expect(huashan).toContainText("임무 시대기여 48/100");
+      await page.locator("#growth-mode").selectOption("training");
+      await page.locator("#growth-run").click();
+      await expect(huashan).toContainText("외문제자");
+      await expect(huashan).toContainText("임무 0회 완료");
+      await page.locator("#growth-mode").selectOption("career");
+      await page.locator("#growth-policy").selectOption("merit");
+      await page.locator("#growth-run").click();
+      await page
+        .locator("#growth-report")
+        .screenshot({ path: "/tmp/growth-career-" + width + ".png" });
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      expect(api.calls).toBe(0);
       expect(errors).toEqual([]);
     },
   );
