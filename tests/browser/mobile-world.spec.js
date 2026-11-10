@@ -58,8 +58,10 @@ for (const width of [390, 320])
       ).toBe(true);
       await page.setViewportSize({ width: 1280, height: 900 });
       for (const group of await page.locator("[data-world-group]").all())
-        expect(await group.evaluate((el) => el.open)).toBe(true);
-      await expect(page.locator("#world-profile-details")).toBeVisible();
+        expect(await group.evaluate((el) => el.open)).toBe(false);
+      await expect(
+        page.locator("#world-profile-details > summary"),
+      ).toBeVisible();
       expect(errors).toEqual([]);
     },
   );

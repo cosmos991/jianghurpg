@@ -920,3 +920,219 @@
     color: #fff0c8;
   }
 }
+
+/* Desktop uses the same action hub, with a compact persistent character sidebar. */
+@media (min-width: 761px) {
+  #world-screen {
+    max-width: 1440px;
+    padding: 24px 36px 40px;
+  }
+  .world-header {
+    margin: 0 0 16px;
+  }
+  .world-header h1 {
+    margin: 6px 0;
+    font-size: 26px;
+  }
+  .world-header .eyebrow {
+    font-size: 10px;
+  }
+  .era-banner {
+    margin-bottom: 14px;
+    padding: 12px 18px;
+  }
+  .mobile-world-nav {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 45;
+    gap: 10px;
+    padding: 10px 0;
+    margin: 0 0 18px;
+    background: #0f1e17f5;
+    border-block: 1px solid #445a40;
+  }
+  .mobile-world-nav a {
+    min-height: 44px;
+    min-width: 105px;
+    display: grid;
+    place-items: center;
+    padding: 8px 18px;
+    text-decoration: none;
+    border: 1px solid #536447;
+    background: #203126;
+    border-radius: 4px;
+    color: #e8dfbf;
+    font-size: 14px;
+  }
+  .mobile-world-nav a[aria-current="location"] {
+    border-color: #c7b076;
+    background: #3b462b;
+    color: #fff0c8;
+  }
+  .world-layout {
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .world-player {
+    position: sticky;
+    top: 82px;
+    padding: 16px;
+  }
+  .world-player > .portrait-art {
+    width: 96px;
+    height: 128px;
+    margin: 0 auto 12px;
+  }
+  .world-player h2 {
+    font-size: 22px;
+    margin: 8px 0;
+  }
+  #world-core-status {
+    display: block;
+    font-size: 13px;
+    color: #e8d39b;
+    margin: 8px 0;
+  }
+  #world-resources {
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  #world-resources b {
+    font-size: 15px;
+  }
+  .world-profile-details > summary {
+    display: list-item;
+    cursor: pointer;
+    min-height: 44px;
+    padding: 12px 0;
+    color: #e3d19a;
+    font-size: 13px;
+  }
+  .world-profile-details {
+    border-top: 1px solid #445a3f;
+  }
+  .mobile-goal {
+    display: block;
+    position: relative;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    border-left: 3px solid #c5ad70;
+    background: #213226;
+  }
+  .mobile-goal > span {
+    display: block;
+    color: #dbc894;
+    font-size: 11px;
+  }
+  .mobile-goal > strong {
+    display: block;
+    padding-right: 85px;
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  .mobile-goal p {
+    font-size: 14px;
+    line-height: 1.8;
+    margin: 5px 0;
+    color: #c3d0b9;
+  }
+  .mobile-goal button {
+    position: absolute;
+    right: 16px;
+    top: 12px;
+    min-height: 44px;
+    padding: 8px 12px;
+    background: none;
+    border: 1px solid #8c8056;
+    color: #e5d4a1;
+    cursor: pointer;
+  }
+  #world-goal {
+    display: none;
+  }
+  .world-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .world-actions button {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    align-content: center;
+    gap: 6px 10px;
+    min-height: 114px;
+    padding: 15px;
+    text-align: left;
+  }
+  .world-actions button > span {
+    grid-column: 1;
+    margin: 0;
+    font-size: 22px;
+  }
+  .world-actions button > strong {
+    grid-column: 2;
+    margin: 0;
+    font-size: 15px;
+    align-self: center;
+  }
+  .world-actions button > small {
+    grid-column: 1/-1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .world-actions button:disabled {
+    opacity: 1;
+    background: #18261d;
+    border-color: #40503b;
+  }
+  .world-actions button:disabled strong {
+    color: #bac5b1;
+  }
+  .world-actions button[data-recommended="true"]:before {
+    display: none;
+  }
+  .mobile-latest {
+    display: block;
+    padding: 10px 14px;
+    margin: 10px 0 18px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 13px;
+    color: #c4d1ba;
+    background: #17281e;
+    border: 1px solid #3e543d;
+  }
+  .world-info-group {
+    display: block;
+    border: 1px solid #536648;
+    border-radius: 5px;
+    margin: 12px 0;
+    background: #18291f;
+    scroll-margin-top: 84px;
+  }
+  .world-info-group > summary {
+    display: list-item;
+    cursor: pointer;
+    min-height: 52px;
+    padding: 14px 18px;
+    color: #e4d5a8;
+    font-size: 15px;
+  }
+  .world-info-group > section {
+    margin: 0 !important;
+    border: 0;
+    border-top: 1px solid #445a3e;
+    border-radius: 0;
+  }
+  .world-info-group > summary:focus-visible {
+    outline: 2px solid #e0cb91;
+    outline-offset: -4px;
+  }
+}

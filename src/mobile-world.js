@@ -9,7 +9,7 @@ export function mountMobileWorld(media) {
     host = $("#mobile-profile-host");
   let journey = null;
   const revealActive = () => {
-    if (!media.matches || !journey) return;
+    if (!journey) return;
     if (
       journey.progress?.battle?.status === "active" ||
       journey.progress?.drill ||
@@ -20,16 +20,13 @@ export function mountMobileWorld(media) {
       $("#group-growth").open = true;
   };
   const sync = () => {
-    profile.open = !media.matches;
-    $("#world-log-entries").setAttribute(
-      "aria-live",
-      media.matches ? "off" : "polite",
-    );
+    profile.open = false;
+    $("#world-log-entries").setAttribute("aria-live", "off");
     if (media.matches) host.append(profile);
     else player.append(profile);
     document
       .querySelectorAll("[data-world-group]")
-      .forEach((group) => (group.open = !media.matches));
+      .forEach((group) => (group.open = false));
     revealActive();
   };
   $("#review-encounter-mobile").onclick = () => $("#review-encounter").click();
@@ -41,10 +38,9 @@ export function mountMobileWorld(media) {
         const target = document.querySelector(link.getAttribute("href"));
         if (!target) return;
         event.preventDefault();
-        if (media.matches)
-          document
-            .querySelectorAll("[data-world-group]")
-            .forEach((group) => (group.open = false));
+        document
+          .querySelectorAll("[data-world-group]")
+          .forEach((group) => (group.open = false));
         document
           .querySelectorAll(".mobile-world-nav a")
           .forEach((item) =>
